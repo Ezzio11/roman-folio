@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { motion, useAnimation, useMotionValue, MotionValue, Transition } from 'framer-motion';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { motion, useAnimation, useMotionValue, MotionValue } from 'framer-motion';
 import './CircularText.css';
 
 interface CircularTextProps {
@@ -12,24 +12,6 @@ interface CircularTextProps {
   audioSrc?: string;
 }
 
-const getRotationTransition = (duration: number, from: number, loop: boolean = true) => ({
-  from,
-  to: from + 360,
-  ease: 'linear' as const,
-  duration,
-  type: 'tween' as const,
-  repeat: loop ? Infinity : 0
-});
-
-const getTransition = (duration: number, from: number) => ({
-  rotate: getRotationTransition(duration, from),
-  scale: {
-    type: 'spring' as const,
-    damping: 20,
-    stiffness: 300
-  }
-});
-
 const CircularText: React.FC<CircularTextProps> = ({
   text,
   spinDuration = 20,
@@ -37,44 +19,39 @@ const CircularText: React.FC<CircularTextProps> = ({
   className = '',
   audioSrc = '/audio/tribal_theme.mp3'
 }) => {
-  const letters = Array.from(text);
   const controls = useAnimation();
   const rotation: MotionValue<number> = useMotionValue(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const handleHoverStart = () => {
-    const start = rotation.get();
-    if (!onHover) return;
+  // Normalize text to repeat for full circle if needed, or just append spaces
+  const displayLabels = useMemo(() => {
+    // We expect the user to provide a proper string with a separator, e.g., "ACKNOWLEDGE ME • 1316 • "
+    return text;
+  }, [text]);
 
-    let transitionConfig: ReturnType<typeof getTransition> | Transition;
-    let scaleVal = 1;
+  const handleHoverStart = () => {
+    if (!onHover) return;
+    const start = rotation.get();
+    let duration = spinDuration;
 
     switch (onHover) {
-      case 'slowDown':
-        transitionConfig = getTransition(spinDuration * 2, start);
-        break;
-      case 'speedUp':
-        transitionConfig = getTransition(spinDuration / 4, start);
-        break;
-      case 'pause':
-        transitionConfig = {
-          rotate: { type: 'spring', damping: 20, stiffness: 300 },
-          scale: { type: 'spring', damping: 20, stiffness: 300 }
-        };
-        break;
-      case 'goBonkers':
-        transitionConfig = getTransition(spinDuration / 20, start);
-        scaleVal = 0.8;
-        break;
-      default:
-        transitionConfig = getTransition(spinDuration, start);
+      case 'slowDown': duration = spinDuration * 2; break;
+      case 'speedUp': duration = spinDuration / 4; break;
+      case 'pause': 
+        controls.stop(); 
+        return;
+      case 'goBonkers': duration = spinDuration / 20; break;
     }
 
     controls.start({
       rotate: start + 360,
-      scale: scaleVal,
-      transition: transitionConfig
+      transition: { 
+        duration, 
+        ease: 'linear', 
+        repeat: Infinity,
+        from: start
+      }
     });
   };
 
@@ -82,8 +59,12 @@ const CircularText: React.FC<CircularTextProps> = ({
     const start = rotation.get();
     controls.start({
       rotate: start + 360,
-      scale: 1,
-      transition: getTransition(isPlaying ? spinDuration / 2 : spinDuration, start)
+      transition: { 
+        duration: isPlaying ? spinDuration / 2 : spinDuration, 
+        ease: 'linear', 
+        repeat: Infinity,
+        from: start
+      }
     });
   };
 
@@ -102,38 +83,51 @@ const CircularText: React.FC<CircularTextProps> = ({
     }
   };
 
-  const currentDuration = isPlaying ? spinDuration / 2 : spinDuration;
-
   useEffect(() => {
     const start = rotation.get();
+    const duration = isPlaying ? spinDuration / 2 : spinDuration;
+    
     controls.start({
       rotate: start + 360,
-      scale: 1,
-      transition: getTransition(currentDuration, start)
+      transition: { 
+        duration, 
+        ease: 'linear', 
+        repeat: Infinity,
+        from: start
+      }
     });
-  }, [currentDuration, text, onHover, controls, rotation]);
+
+    return () => {
+      // Clean up audio on unmount
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [isPlaying, spinDuration, controls]);
 
   return (
     <motion.div
-      className={`circular-text cursor-pointer select-none ${className} ${isPlaying ? 'playing-glow' : ''}`}
-      style={{ rotate: rotation }}
-      initial={{ rotate: 0 }}
-      animate={controls}
+      className={`circular-text-container cursor-pointer select-none ${className} ${isPlaying ? 'playing-glow' : ''}`}
+      onClick={handleToggleAudio}
       onMouseEnter={handleHoverStart}
       onMouseLeave={handleHoverEnd}
-      onClick={handleToggleAudio}
+      style={{ rotate: rotation }}
+      animate={controls}
     >
-      {letters.map((letter, i) => {
-        const rotationDeg = (360 / letters.length) * i;
-        const factor = 50; 
-        const transform = `rotate(${rotationDeg}deg) translateY(-${factor}px)`;
-
-        return (
-          <span key={i} style={{ transform, WebkitTransform: transform }} className="absolute">
-            {letter}
-          </span>
-        );
-      })}
+      <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+        <defs>
+          <path
+            id="circlePath"
+            d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
+          />
+        </defs>
+        <text className="fill-white font-black uppercase text-[10px] tracking-[0.2em] font-subheading">
+          <textPath href="#circlePath" startOffset="0%">
+            {displayLabels}
+          </textPath>
+        </text>
+      </svg>
     </motion.div>
   );
 };
