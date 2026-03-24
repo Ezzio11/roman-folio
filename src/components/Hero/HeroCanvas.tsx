@@ -12,57 +12,71 @@ export default function HeroCanvas() {
     const container = containerRef.current;
     if (!container) return;
 
-    // 1. Setup Renderer
-    const renderer = new WebGLRenderer({ antialias: false, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    container.appendChild(renderer.domElement);
+    let renderer: WebGLRenderer;
+    let camera: PerspectiveCamera;
+    let animId: number;
+    let observer: IntersectionObserver;
 
-    const scene = new Scene();
-    const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
+    const init = () => {
+      if (!container) return;
+      console.time("HeroCanvas-Init");
 
-    // 2. Load Assets
-    const loader = new TextureLoader();
-    const tribalTex = loader.load("/images/tribal_chief.webp");
-    const depthTex = loader.load("/images/roman_depth.webp");
+      renderer = new WebGLRenderer({ antialias: false, alpha: true, powerPreference: "high-performance" });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2)); // Lower multiplier for TBT ☝️
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      container.appendChild(renderer.domElement);
 
-    // 3. Visual Tuning Parameters 🎨
-    const tuning = {
-      baseScale: 7.5,         // Size of Tribal Chief
-      yOffset: -1.0,          // Base vertical position
-      parallaxStrength: 0.015, // Intensity of the 3D depth effect
+      const scene = new Scene();
+      camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 5;
+
+      const loader = new TextureLoader();
+// ... rest of init
+      const tribalTex = loader.load("/images/tribal_chief.webp");
+      const depthTex = loader.load("/images/roman_depth.webp");
+
+      const tuning = {
+        baseScale: 7.5,
+        yOffset: -1.0,
+        parallaxStrength: 0.015,
+      };
+
+      const baseGeometry = new PlaneGeometry(tuning.baseScale, tuning.baseScale);
+      const baseMaterial = new ShaderMaterial({
+        uniforms: {
+          uTexture: { value: tribalTex },
+          uDepthMap: { value: depthTex },
+          uMouse: { value: mouseRef.current },
+          uParallaxStrength: { value: tuning.parallaxStrength }
+        },
+        vertexShader,
+        fragmentShader: baseFragmentShader,
+        transparent: true
+      });
+
+      const basePlane = new Mesh(baseGeometry, baseMaterial);
+      basePlane.position.set(0, tuning.yOffset, 0);
+      scene.add(basePlane);
+
+      let isVisible = true;
+      observer = new IntersectionObserver(
+        ([entry]) => { isVisible = entry.isIntersecting; },
+        { threshold: 0 }
+      );
+      observer.observe(container);
+
+      const animate = () => {
+        if (isVisible) {
+          baseMaterial.uniforms.uMouse.value.copy(mouseRef.current);
+          renderer.render(scene, camera);
+        }
+        animId = requestAnimationFrame(animate);
+      };
+
+      animate();
+      console.timeEnd("HeroCanvas-Init");
     };
 
-    const baseGeometry = new PlaneGeometry(tuning.baseScale, tuning.baseScale);
-
-    const baseMaterial = new ShaderMaterial({
-      uniforms: {
-        uTexture: { value: tribalTex },
-        uDepthMap: { value: depthTex },
-        uMouse: { value: mouseRef.current },
-        uParallaxStrength: { value: tuning.parallaxStrength }
-      },
-      vertexShader,
-      fragmentShader: baseFragmentShader,
-      transparent: true
-    });
-
-    const basePlane = new Mesh(baseGeometry, baseMaterial);
-    basePlane.position.set(0, tuning.yOffset, 0);
-    scene.add(basePlane);
-
-    // Visibility management ☝️🎬
-    let isVisible = true;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        isVisible = entry.isIntersecting;
-      },
-      { threshold: 0 }
-    );
-    observer.observe(container);
-
-    // 4. Interaction
     const handlePointerMove = (e: PointerEvent) => {
       mouseRef.current.x = (e.clientX / window.innerWidth - 0.5) * 2;
       mouseRef.current.y = -(e.clientY / window.innerHeight - 0.5) * 2;
@@ -70,20 +84,17 @@ export default function HeroCanvas() {
 
     window.addEventListener("pointermove", handlePointerMove);
 
-    // 5. Animation Loop
-    let animId: number;
-    const animate = () => {
-      if (isVisible) {
-        baseMaterial.uniforms.uMouse.value.copy(mouseRef.current);
-        renderer.render(scene, camera);
+    // Defer initialization slightly to avoid hydration overlap, but early enough for LCP ☝️🚀
+    const timer = setTimeout(() => {
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(() => init());
+      } else {
+        init();
       }
-      animId = requestAnimationFrame(animate);
-    };
+    }, 100); // Reduced from 1500ms for LCP
 
-    animate();
-
-    // 6. Resize
     const handleResize = () => {
+      if (!renderer) return;
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -94,11 +105,14 @@ export default function HeroCanvas() {
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("resize", handleResize);
-      cancelAnimationFrame(animId);
-      observer.disconnect();
-      renderer.dispose();
-      if (container && container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
+      clearTimeout(timer);
+      if (animId) cancelAnimationFrame(animId);
+      if (observer) observer.disconnect();
+      if (renderer) {
+        renderer.dispose();
+        if (container && container.contains(renderer.domElement)) {
+          container.removeChild(renderer.domElement);
+        }
       }
     };
   }, []);

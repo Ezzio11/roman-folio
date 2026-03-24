@@ -16,6 +16,8 @@ const Counter1316 = dynamic(() => import("@/components/Resume/Counter1316"), { s
 const GridMotion = dynamic(() => import("@/components/Animations/GridMotion"), { ssr: false });
 const SplashCursor = dynamic(() => import("@/components/Animations/SplashCursor"), { ssr: false });
 const AcknowledgeNavigator = dynamic(() => import("@/components/Resume/AcknowledgeNavigator"), { ssr: false });
+const PerformanceMonitor = dynamic(() => import("@/components/PerformanceMonitor"), { ssr: false });
+const LazyHydrate = dynamic(() => import("@/components/LazyHydrate"), { ssr: false });
 
 const bloodlineItems = [
   "/highlights/wrestlemania_unification_2022.webp", "Spear", "/highlights/crowned_as_tribal_chief.webp", "Superman Punch", "/highlights/elimination_chamber_2018.webp", "Elimination Chamber", "/highlights/ulafala_win_again_solosikoa.webp",
@@ -26,34 +28,40 @@ const bloodlineItems = [
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen bg-[--background] text-[--foreground] transition-colors duration-500 overflow-clip selection:bg-[--accent] selection:text-white">
-      <SplashCursor />
-      <AcknowledgeNavigator />
-      <Counter1316 />
+    <main className="relative min-h-screen bg-[--background] text-[--foreground] transition-colors duration-500 selection:bg-[--accent] selection:text-white">
+      <PerformanceMonitor />
+      
+      <LazyHydrate delay={1200}>
+        <SplashCursor />
+        <AcknowledgeNavigator />
+        <Counter1316 />
+      </LazyHydrate>
 
       <Hero />
 
       <div className="relative z-20 bg-[--background]">
-        <div className="relative">
-          <Header />
-          <Objective />
-          <div id="experience"><Experience /></div>
+        <LazyHydrate delay={2000}>
+          <div className="relative">
+            <Header />
+            <Objective />
+            <Experience />
 
-          <section id="highlights" className="py-20 border-b border-[--border-color] overflow-hidden">
-            <h2 className="text-xl font-black uppercase tracking-[0.2em] text-[--accent] mb-8 text-center font-subheading">
-              Career Highlights
-            </h2>
-            <div className="h-[600px] w-full">
-              <GridMotion items={bloodlineItems} />
-            </div>
-          </section>
-        </div>
+            <section id="highlights" className="py-20 border-b border-[--border-color] relative z-10" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}>
+              <h2 className="text-xl font-black uppercase tracking-[0.2em] text-[--accent] mb-8 text-center font-subheading">
+                Career Highlights
+              </h2>
+              <div className="h-[600px] w-full">
+                <GridMotion items={bloodlineItems} />
+              </div>
+            </section>
+          </div>
 
-        <div id="skills"><Skills /></div>
-        <div id="dominance"><DominanceDashboard /></div>
-        <Education />
-        <References />
-        <div id="contact"><Contact /></div>
+          <div id="skills" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 600px' }}><Skills /></div>
+          <div id="dominance" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}><DominanceDashboard /></div>
+          <div style={{ contentVisibility: 'auto', containIntrinsicSize: '0 400px' }}><Education /></div>
+          <div style={{ contentVisibility: 'auto', containIntrinsicSize: '0 400px' }}><References /></div>
+          <div id="contact" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 600px' }}><Contact /></div>
+        </LazyHydrate>
       </div>
     </main>
   );

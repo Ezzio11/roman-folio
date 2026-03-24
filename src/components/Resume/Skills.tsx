@@ -20,7 +20,7 @@ export default function Skills() {
   const highlights = ["SPEAR", "SUPERMAN", "GUILLOTINE", "ACKNOWLEDGE", "MAIN", "LEGACY"];
 
   return (
-    <section id="skills" className="py-32 px-8 max-w-7xl mx-auto border-b border-[--border-color] relative z-10 overflow-hidden">
+    <section id="skills" className="py-32 px-8 max-w-7xl mx-auto border-b border-[--border-color] relative z-10">
       <div className="flex flex-col md:flex-row gap-12 items-start h-[600px]">
         {/* Left Side: Traditional Labels for Context */}
         <div className="w-full md:w-1/3 space-y-12">

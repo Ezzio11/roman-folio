@@ -28,7 +28,7 @@ export default function Hero() {
 
   useEffect(() => {
     if (!containerRef.current) return;
-    
+
     // Performance: Use ResizeObserver instead of getBoundingClientRect in a resize listener ☝️🎬
     const observer = new ResizeObserver((entries) => {
       for (let entry of entries) {
@@ -146,8 +146,8 @@ export default function Hero() {
             <div className="w-full md:w-64 space-y-4">
               <div className="p-6 bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-2xl">
                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/40 mb-4 font-subheading">
-                  <span>Next Defense</span>
-                  <span className="text-[--accent]">WRESTLEMANIA</span>
+                  <span>Next Defense:</span>
+                  <span className="text-[--accent]">WRESTLEMANIA 42</span>
                 </div>
                 <div className="space-y-1">
                   <h4 className="text-sm font-black text-white uppercase font-heading">Island Status</h4>

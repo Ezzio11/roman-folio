@@ -48,6 +48,11 @@ export default function RootLayout({
       lang="en"
       className={`${anton.variable} ${bebasNeue.variable} ${inter.variable} ${barlow.variable} h-full antialiased`}
     >
+      <head>
+        {/* Preload critical LCP assets ☝️🚀 */}
+        <link rel="preload" href="/images/tribal_chief.webp" as="image" />
+        <link rel="preload" href="/images/roman_depth.webp" as="image" />
+      </head>
       <body className="min-h-full flex flex-col">
         <LoadingScreen />
         <div className="noise" />

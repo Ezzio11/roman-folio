@@ -25,7 +25,7 @@ export default function Objective() {
   const isInView = useInView(headlineRef, { once: true, margin: "-100px" });
 
   return (
-    <section ref={sectionRef} className="relative py-48 px-8 bg-black border-b border-white/5 overflow-hidden scroll-mt-24" id="objective">
+    <section ref={sectionRef} className="relative py-48 px-8 bg-black border-b border-white/5 scroll-mt-24" id="objective">
 
       {/* ☝️📊 THE FAR LEFT DATA STREAM — Tactical positioning (No boxes) */}
       <div className="hidden lg:flex absolute left-5 top-1/2 -translate-y-1/2 flex-col gap-10 z-30">

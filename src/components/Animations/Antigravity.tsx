@@ -1,5 +1,5 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { InstancedMesh, Object3D } from 'three';
 
 interface AntigravityProps {
@@ -20,7 +20,9 @@ interface AntigravityProps {
   fieldStrength?: number;
 }
 
-const AntigravityInner: React.FC<AntigravityProps> = ({
+const HALF_PI = Math.PI / 2;
+
+const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
   count = 300,
   magnetRadius = 10,
   ringRadius = 10,
@@ -35,7 +37,8 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
   depthFactor = 1,
   pulseSpeed = 3,
   particleShape = 'capsule',
-  fieldStrength = 10
+  fieldStrength = 10,
+  isVisible
 }) => {
   const meshRef = useRef<InstancedMesh>(null);
   const { viewport } = useThree();
@@ -79,7 +82,17 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
     return temp;
   }, [count, viewport.width, viewport.height]);
 
+  const lastFrameTime = useRef(0);
+  const frameInterval = 1 / 45; // 45 FPS target ☝️🚀
+
   useFrame((state, delta) => {
+    if (!isVisible) return; // Pause if off-screen ☝️🎬
+
+    // Throttle to 45fps to save CPU/TBT on all devices ☝️🚀
+    lastFrameTime.current += delta;
+    if (lastFrameTime.current < frameInterval) return;
+    lastFrameTime.current -= frameInterval;
+
     const mesh = meshRef.current;
     if (!mesh) return;
 
@@ -176,9 +189,28 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
 };
 
 export default function Antigravity(props: AntigravityProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsVisible(entry.isIntersecting);
+    }, { threshold: 0 });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <Canvas camera={{ position: [0, 0, 50], fov: 35 }}>
-      <AntigravityInner {...props} />
-    </Canvas>
+    <div ref={containerRef} className="absolute inset-0 z-0">
+      <Canvas 
+        camera={{ position: [0, 0, 50], fov: 35 }}
+        gl={{ antialias: false, stencil: false, depth: false }}
+        dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.5) : 1}
+        frameloop={isVisible ? "always" : "demand"}
+      >
+        <AntigravityInner {...props} isVisible={isVisible} />
+      </Canvas>
+    </div>
   );
 }

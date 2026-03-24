@@ -8,6 +8,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .circular-text-container svg {
@@ -16,9 +18,9 @@
 }
 
 @keyframes tribal-pulse-opacity {
-  0% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.15); }
-  100% { opacity: 0.3; transform: scale(1); }
+  0% { opacity: 0.15; transform: scale(0.9); }
+  50% { opacity: 0.4; transform: scale(1.1); }
+  100% { opacity: 0.15; transform: scale(0.9); }
 }
 
 .playing-glow::before {
@@ -26,9 +28,12 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(185, 28, 28, 0.6) 0%, transparent 70%);
-  animation: tribal-pulse-opacity 2s infinite ease-in-out;
+  background: radial-gradient(circle, rgba(230, 0, 0, 0.4) 0%, transparent 70%);
+  animation: tribal-pulse-opacity 3s infinite ease-in-out;
   z-index: -1;
+  pointer-events: none;
+  /* Use hardware acceleration for the pulse ☝️🎬 */
+  will-change: opacity, transform;
 }
 
 .playing-glow {
@@ -36,6 +41,13 @@
 }
 
 .playing-glow text {
-  fill: #ff4d4d;
-  filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.6));
+  fill: #ff3333;
+  /* High-performance alternative to drop-shadow for rotating elements ☝️🚀 */
+  paint-order: markers fill stroke;
+  stroke: rgba(230, 0, 0, 0.2);
+  stroke-width: 0.5px;
+}
+
+.circular-text-container text {
+  font-size: 8.5px;
 }

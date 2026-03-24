@@ -12,7 +12,7 @@ const stats = [
   { value: 30, unit: "DEFENSES", label: "Title Defenses", sub: "2020–2024 Reign", accent: false },
   { value: 1380, unit: "DAYS", label: "Combined Universal Title Days", sub: "Most In History", accent: false },
   { value: 2, unit: "YEARS", label: "PWI #1 Ranked", sub: "2016 · 2022", accent: false },
-  { value: 4, unit: "YEARS", label: "Consecutive WrestleMania Main Events", sub: "2015–2018", accent: false },
+  { value: 6, unit: "YEARS", label: "Consecutive WrestleMania Main Events", sub: "2021–2026", accent: false },
 ];
 
 const milestones = [
@@ -129,26 +129,26 @@ export default function DominanceDashboard() {
                     whileInView={{ pathLength: 1 }}
                     transition={{ duration: 2, ease: "easeInOut" }}
                   />
-                  
+
                   {/* Interactive Hit Zones */}
                   {ascentData.map((p, i) => (
                     <g key={i}>
-                      <circle 
-                        cx={p.x} 
-                        cy={p.y} 
-                        r="3" 
-                        fill="transparent" 
+                      <circle
+                        cx={p.x}
+                        cy={p.y}
+                        r="3"
+                        fill="transparent"
                         onMouseEnter={() => setHoveredPoint(i)}
                         onMouseLeave={() => setHoveredPoint(null)}
                         className="cursor-pointer"
                       />
                       {hoveredPoint === i && (
-                        <motion.circle 
-                          cx={p.x} 
-                          cy={p.y} 
-                          r="1" 
-                          fill="var(--accent)" 
-                          initial={{ r: 0 }} 
+                        <motion.circle
+                          cx={p.x}
+                          cy={p.y}
+                          r="1"
+                          fill="var(--accent)"
+                          initial={{ r: 0 }}
                           animate={{ r: 1.5 }}
                           className="pointer-events-none shadow-[0_0_10px_var(--accent)]"
                         />
@@ -166,11 +166,11 @@ export default function DominanceDashboard() {
 
                 {/* ☝️ FLOATING TOOLTIP */}
                 {hoveredPoint !== null && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.9, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    style={{ 
-                      left: `${ascentData[hoveredPoint].x}%`, 
+                    style={{
+                      left: `${ascentData[hoveredPoint].x}%`,
                       top: `${ascentData[hoveredPoint].y}%`,
                       transform: 'translate(-50%, -120%)'
                     }}

@@ -1,56 +1,39 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
-/* ─────────────────────────────────────────────
-   The "Acknowledgment" Loading Screen
-   5-phase cinematic sequence:
-   1. Blackout + tribal glyph fades in
-   2. Light rays bloom from glyph
-   3. Text: "YOU WILL ACKNOWLEDGE" slashes in
-   4. Crimson blade sweeps across bottom
-   5. Split-door exit → site revealed
-───────────────────────────────────────────── */
-
 const WORDS = ["YOU", "WILL", "ACKNOWLEDGE", "ME"];
-const MIN_DISPLAY = 3200; // ms minimum before we can exit
+const MIN_DISPLAY_TIME = 2500; // Minimum time before allowed exit ☝️🚀
 
 export default function LoadingScreen() {
   const [phase, setPhase] = useState<"loading" | "declare" | "exit" | "done">("loading");
   const [wordIndex, setWordIndex] = useState(-1);
   const [loadComplete, setLoadComplete] = useState(false);
-  const startTime = useRef(Date.now());
-  const progress = useMotionValue(0);
-  const bladeWidth = useTransform(progress, [0, 1], ["0%", "100%"]);
+  const [minTimeReached, setMinTimeReached] = useState(false);
 
-  // Drive progress bar animation
   useEffect(() => {
-    const controls = animate(progress, 1, {
-      duration: MIN_DISPLAY / 1000,
-      ease: "easeInOut",
-    });
-    return controls.stop;
-  }, [progress]);
+    // Track minimum cinematic buildup time ☝️🚀
+    const timer = setTimeout(() => setMinTimeReached(true), MIN_DISPLAY_TIME);
 
-  // Listen for actual page load
-  useEffect(() => {
     const handleLoad = () => setLoadComplete(true);
     if (document.readyState === "complete") {
       setLoadComplete(true);
     } else {
       window.addEventListener("load", handleLoad);
-      return () => window.removeEventListener("load", handleLoad);
     }
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("load", handleLoad);
+    };
   }, []);
 
-  // Phase: loading → declare (after glyph)
   useEffect(() => {
-    const t = setTimeout(() => setPhase("declare"), 800);
-    return () => clearTimeout(t);
+    // Initial delay for the OTC logo to pulse
+    const t1 = setTimeout(() => setPhase("declare"), 300);
+    return () => clearTimeout(t1);
   }, []);
 
-  // Phase: stagger the words in
   useEffect(() => {
     if (phase !== "declare") return;
     let i = 0;
@@ -58,177 +41,91 @@ export default function LoadingScreen() {
       setWordIndex(i);
       i++;
       if (i < WORDS.length) {
-        setTimeout(next, 320);
+        setTimeout(next, 350); // Slower, more deliberate buildup ☝️🎬
       }
     };
-    setTimeout(next, 300);
+    setTimeout(next, 200);
   }, [phase]);
 
-  // Phase: trigger exit once words done + min time elapsed + page loaded
   useEffect(() => {
-    if (wordIndex < WORDS.length - 1) return;
-    const check = () => {
-      const elapsed = Date.now() - startTime.current;
-      const remaining = MIN_DISPLAY - elapsed;
-      if (loadComplete || elapsed > MIN_DISPLAY + 500) {
-        setTimeout(() => setPhase("exit"), Math.max(0, remaining));
-      } else {
-        setTimeout(check, 100);
-      }
-    };
-    setTimeout(check, 300);
-  }, [wordIndex, loadComplete]);
+    // Only exit when ALL conditions are met:
+    // 1. All words declared
+    // 2. Minimum cinematic time elapsed
+    // 3. Real page resources loaded ☝️🚀
+    if (wordIndex === WORDS.length - 1 && minTimeReached && loadComplete) {
+      const wait = setTimeout(() => setPhase("exit"), 600);
+      return () => clearTimeout(wait);
+    }
+  }, [wordIndex, minTimeReached, loadComplete]);
 
-  // Phase: exit → done (unmount after animation)
+  // Safety net: Always exit after 10 seconds to avoid bricking the UX ☝️🚀
   useEffect(() => {
-    if (phase !== "exit") return;
-    const t = setTimeout(() => setPhase("done"), 1000);
+    const t = setTimeout(() => {
+      if (phase !== "done") setPhase("exit");
+    }, 10000);
     return () => clearTimeout(t);
   }, [phase]);
 
-  const isVisible = phase !== "done";
+  useEffect(() => {
+    if (phase === "exit") {
+      const t = setTimeout(() => setPhase("done"), 1200);
+      return () => clearTimeout(t);
+    }
+  }, [phase]);
+
+  if (phase === "done") return null;
 
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <div className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden" aria-hidden>
-          {/* ── LEFT PANEL ── */}
-          <motion.div
-            className="absolute inset-y-0 left-0 w-1/2 bg-black origin-left"
-            animate={phase === "exit" ? { x: "-100%" } : { x: 0 }}
-            transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1], delay: 0.05 }}
+    <div 
+      className={`fixed inset-0 z-[9999] bg-black transition-opacity duration-1000 ease-in-out ${phase === "exit" ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+    >
+      {/* ── LEFT/RIGHT PANELS ── */}
+      <div className={`absolute inset-y-0 left-0 w-1/2 bg-black transition-transform duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${phase === "exit" ? "-translate-x-full" : "translate-x-0"}`} />
+      <div className={`absolute inset-y-0 right-0 w-1/2 bg-black transition-transform duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${phase === "exit" ? "translate-x-full" : "translate-x-0"}`} />
+
+      <div className={`absolute inset-0 flex flex-col items-center justify-center z-10 transition-all duration-1000 ${phase === "exit" ? "opacity-0 scale-[0.9] blur-sm" : "opacity-100 scale-100"}`}>
+        
+        {/* Tribal Pattern Emblem (OTC logo) */}
+        <div className="relative mb-8 w-40 h-40 md:w-56 md:h-56">
+          <div 
+            className="absolute inset-2 rounded-full animate-pulse"
+            style={{
+              background: "radial-gradient(circle, rgba(230,0,0,0.3) 0%, transparent 70%)",
+              filter: "blur(24px)",
+            }}
           />
-
-          {/* ── RIGHT PANEL ── */}
-          <motion.div
-            className="absolute inset-y-0 right-0 w-1/2 bg-black origin-right"
-            animate={phase === "exit" ? { x: "100%" } : { x: 0 }}
-            transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1], delay: 0.05 }}
-          />
-
-          {/* ── CONTENT (stays centered, fades as panels exit) ── */}
-          <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center z-10"
-            animate={phase === "exit" ? { opacity: 0, scale: 0.9 } : { opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-          >
-            {/* Tribal Pattern Emblem */}
-            <motion.div
-              className="relative mb-12 select-none w-48 h-48 md:w-64 md:h-64"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.2, ease: [0.34, 1.56, 0.64, 1] }}
-            >
-              {/* Pulsing Glow behind the pattern */}
-              <motion.div
-                className="absolute inset-4 rounded-full"
-                style={{
-                  background: "radial-gradient(circle, rgba(230,0,0,0.4) 0%, transparent 70%)",
-                  filter: "blur(32px)",
-                }}
-                animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              />
-
-              {/* The OTC logo — centered, no rotation */}
-              <motion.div
-                className="relative z-10 w-full h-full flex items-center justify-center drop-shadow-[0_0_30px_rgba(230,0,0,0.3)]"
-                animate={{ scale: [1, 1.03, 1] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <div
-                  className="relative w-full h-full"
-                  style={{ filter: "drop-shadow(0 0 10px rgba(0,0,0,0.5))" }}
-                >
-                  <Image
-                    src="/otc1.webp"
-                    alt="One True Chief"
-                    fill
-                    priority
-                    className="object-contain"
-                    sizes="(max-width: 768px) 192px, 256px"
-                  />
-                </div>
-              </motion.div>
-              
-              {/* Outer decorative ring */}
-              <motion.div
-                className="absolute -inset-4 border border-[--accent]/20 rounded-full"
-                initial={{ opacity: 0, scale: 1.1 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 2, delay: 0.5 }}
-              />
-            </motion.div>
-
-            {/* ROMAN REIGNS wordmark */}
-            <motion.div
-              className="text-center mb-12 select-none"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              <div
-                className="text-6xl md:text-8xl font-black tracking-tighter leading-none"
-                style={{ fontFamily: "var(--font-bebas), var(--font-anton), sans-serif" }}
-              >
-                <span className="text-white">ROMAN</span>
-                <span className="text-[#e60000]">REIGNS</span>
-              </div>
-              <div
-                className="text-sm tracking-[0.6em] text-white/40 uppercase mt-2"
-                style={{ fontFamily: "var(--font-inter), sans-serif" }}
-              >
-                Tribal Chief · Head of the Table
-              </div>
-            </motion.div>
-
-            {/* THE DECLARATION */}
-            <div
-              className="flex gap-4 md:gap-6 items-center mb-14 h-20 select-none"
-              style={{ fontFamily: "var(--font-bebas), var(--font-anton), sans-serif" }}
-            >
-              {WORDS.map((word, i) => (
-                <div key={word} className="overflow-hidden">
-                  <motion.span
-                    className={`block text-3xl md:text-5xl font-black tracking-[0.15em] leading-none ${
-                      word === "ME" ? "text-[#e60000] drop-shadow-[0_0_15px_rgba(230,0,0,0.5)]" : "text-white/95"
-                    }`}
-                    initial={{ y: "110%", opacity: 0 }}
-                    animate={wordIndex >= i ? { y: 0, opacity: 1 } : { y: "110%", opacity: 0 }}
-                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    {word}
-                  </motion.span>
-                </div>
-              ))}
-            </div>
-
-            {/* PROGRESS BLADE */}
-            <div className="w-72 md:w-[400px] h-[3px] bg-white/10 relative overflow-hidden rounded-full">
-              <motion.div
-                className="absolute inset-y-0 left-0 bg-[#e60000]"
-                style={{ width: bladeWidth }}
-              />
-              {/* Trailing glow */}
-              <motion.div
-                className="absolute inset-y-0 h-full w-12 bg-gradient-to-r from-transparent to-[#e60000]/80 blur-md"
-                style={{ left: bladeWidth }}
-              />
-            </div>
-
-            {/* Fine text under blade */}
-            <motion.p
-              className="mt-6 text-[12px] tracking-[0.5em] text-white/30 uppercase"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-              style={{ fontFamily: "var(--font-inter), sans-serif" }}
-            >
-              Entering the Island of Relevancy
-            </motion.p>
-          </motion.div>
+          <div className="relative z-10 w-full h-full flex items-center justify-center drop-shadow-[0_0_15px_rgba(230,0,0,0.3)]">
+            <Image src="/otc1.webp" alt="One True Chief" fill priority className="object-contain" />
+          </div>
         </div>
-      )}
-    </AnimatePresence>
+
+        {/* ROMAN REIGNS wordmark - Simplified & Dimmed */}
+        <div className="text-center mb-16 transition-opacity duration-1000">
+          <div className="text-5xl md:text-7xl font-black tracking-tighter leading-none font-bebas opacity-40">
+            <span className="text-white">ROMAN</span>
+            <span className="text-[#e60000]">REIGNS</span>
+          </div>
+        </div>
+
+        {/* THE CINEMATIC DECLARATION ☝️🚀🎬 */}
+        <div className="flex gap-4 md:gap-8 items-center h-24 font-bebas">
+          {WORDS.map((word, i) => (
+            <span 
+              key={i}
+              className={`text-4xl md:text-7xl font-black tracking-[0.2em] transition-all duration-700 ${wordIndex >= i ? 'opacity-100 translate-y-0 filter-none' : 'opacity-0 translate-y-8 blur-md scale-95'} ${word === "ME" ? "text-[#e60000]" : "text-white"}`}
+            >
+              {word}
+            </span>
+          ))}
+        </div>
+
+        {/* No fake progress bar, just a subtle acknowledgment of the chief ☝️🎬 */}
+        <div className={`mt-12 transition-opacity duration-1000 ${wordIndex >= 0 ? 'opacity-100' : 'opacity-0'}`}>
+          <p className="text-[10px] tracking-[0.8em] text-white/20 uppercase font-inter text-center whitespace-nowrap">
+            HEAD OF THE TABLE · TRIBAL CHIEF
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

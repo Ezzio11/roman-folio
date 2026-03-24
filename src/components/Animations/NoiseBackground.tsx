@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Vector2, Color, Mesh, ShaderMaterial } from "three";
 
@@ -57,7 +57,7 @@ const fragmentShader = `
     float v = 0.0;
     float a = 0.5;
     vec2 shift = vec2(100);
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 2; ++i) { // Reduced to 2 octaves for ☝️🚀 performance
       v += a * snoise(p);
       p = p * 2.0 + shift;
       a *= 0.5;
@@ -136,6 +136,17 @@ function NoisePlane(props: NoiseBackgroundProps & { isVisible: boolean }) {
   );
 
   const timeRef = useRef(0);
+  const mousePos = useRef(new Vector2(0, 0));
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      // Convert to -1..1 range manually since we are likely pointer-events-none ☝️🎬
+      mousePos.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mousePos.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   useFrame((state, delta) => {
     if (!isVisible) return; // Pause if off-screen ☝️🎬
@@ -144,7 +155,7 @@ function NoisePlane(props: NoiseBackgroundProps & { isVisible: boolean }) {
       const material = meshRef.current.material as ShaderMaterial;
       timeRef.current += delta;
       material.uniforms.uTime.value = timeRef.current;
-      material.uniforms.uMouse.value.lerp(state.mouse, 0.1);
+      material.uniforms.uMouse.value.lerp(mousePos.current, 0.1);
       material.uniforms.uResolution.value.set(size.width, size.height);
     }
   });

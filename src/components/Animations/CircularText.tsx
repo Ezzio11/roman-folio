@@ -131,7 +131,7 @@ const CircularText: React.FC<CircularTextProps> = ({
       onClick={handleToggleAudio}
       onMouseEnter={handleHoverStart}
       onMouseLeave={handleHoverEnd}
-      style={{ rotate: rotation, transform: 'translateZ(0)' }}
+      style={{ transformStyle: 'preserve-3d', transform: 'translateZ(0)' }}
       animate={controls}
     >
       <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">

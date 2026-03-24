@@ -32,46 +32,47 @@ const experiences = [
 
 export default function Experience() {
   return (
-    <section className="py-32 px-8 max-w-7xl mx-auto border-b border-[--border-color] relative z-10">
-      {/* Zigzag Asset: Roman on the Left 🩸 */}
-      <div className="absolute top-0 -left-20 w-[500px] h-full opacity-95 pointer-events-none z-0">
-        {/* Base Roman image — static, dimmed */}
-        <Image
-          src="/images/roman_full_body.webp"
-          alt="Roman Reigns"
-          fill
-          sizes="(max-width: 1024px) 100vw, 50vw"
-          className="object-contain object-left scale-110 brightness-50"
-          priority
-        />
-
-        {/* Isolated pulsing sacred glow — Composited via opacity/scale 🍷🔥✨ */}
-        <div className="absolute inset-0 w-full h-full scale-110 flex items-center justify-center pointer-events-none">
-          {/* Animated Glow Halo */}
-          <motion.div
-            className="absolute w-[300px] h-[300px] bg-[--accent] rounded-full blur-[100px]"
-            animate={{
-              opacity: [0.3, 0.6, 0.3],
-              scale: [1, 1.2, 1],
-            }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+    <section className="py-32 px-8 max-w-7xl mx-auto relative z-30 overflow-visible">
+      {/* Zigzag Asset: Roman on the Left 🩸 — Absolute Freedom / Zero Boundaries ☝️✨ */}
+      <div className="absolute -top-[200px] -bottom-[100px] -left-25 w-[600px] opacity-100 pointer-events-none z-10 overflow-visible">
+        <div className="relative w-full h-full transform-gpu scale-75 xl:scale-90 origin-bottom-left">
+          {/* Base Roman image — static, dimmed */}
+          <Image
+            src="/images/roman_full_body.webp"
+            alt="Roman Reigns"
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-contain object-left brightness-[0.4]"
+            priority
           />
-          
-          <motion.div
-            className="relative w-full h-full"
-            animate={{
-              opacity: [0.8, 1, 0.8],
-            }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Image
-              src="/ulafala.webp"
-              alt="Sacred Ulafala"
-              fill
-              sizes="(max-width: 1024px) 30vw, 20vw"
-              className="object-contain object-left brightness-125"
+
+          {/* Isolated pulsing sacred glow — Perfectly Synchronized 🍷🔥✨ */}
+          <div className="absolute inset-0">
+            {/* Animated Glow Halo — Centered on the chest area approximately */}
+            <motion.div
+              className="absolute left-[15%] top-[30%] w-[350px] h-[350px] bg-[--accent] rounded-full blur-[140px]"
+              animate={{
+                opacity: [0.2, 0.5, 0.2],
+              }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             />
-          </motion.div>
+
+            <motion.div
+              className="absolute inset-0"
+              animate={{
+                opacity: [0.7, 1, 0.7],
+              }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Image
+                src="/ulafala.webp"
+                alt="Sacred Ulafala"
+                fill
+                sizes="(max-width: 1024px) 30vw, 20vw"
+                className="object-contain object-left brightness-150 drop-shadow-[0_0_25px_rgba(230,0,0,0.6)]"
+              />
+            </motion.div>
+          </div>
         </div>
       </div>
 
