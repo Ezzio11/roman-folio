@@ -1,5 +1,5 @@
 "use client";
-import { motion, useMotionValue, useTransform, type PanInfo } from 'motion/react';
+import { motion, useMotionValue, useTransform, type PanInfo } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import './Stack.css';

@@ -13,13 +13,13 @@ export default function HeroCanvas() {
     if (!container) return;
 
     // 1. Setup Renderer
-    const renderer = new WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Removed typeof window check
+    const renderer = new WebGLRenderer({ antialias: false, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(window.innerWidth, window.innerHeight);
-    container.appendChild(renderer.domElement); // Kept containerRef as mountRef was not defined
+    container.appendChild(renderer.domElement);
 
     const scene = new Scene();
-    const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000); // Kept 45, snippet had 75
+    const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 5;
 
     // 2. Load Assets
@@ -52,6 +52,16 @@ export default function HeroCanvas() {
     basePlane.position.set(0, tuning.yOffset, 0);
     scene.add(basePlane);
 
+    // Visibility management ☝️🎬
+    let isVisible = true;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+      },
+      { threshold: 0 }
+    );
+    observer.observe(container);
+
     // 4. Interaction
     const handlePointerMove = (e: PointerEvent) => {
       mouseRef.current.x = (e.clientX / window.innerWidth - 0.5) * 2;
@@ -63,8 +73,10 @@ export default function HeroCanvas() {
     // 5. Animation Loop
     let animId: number;
     const animate = () => {
-      baseMaterial.uniforms.uMouse.value.copy(mouseRef.current);
-      renderer.render(scene, camera);
+      if (isVisible) {
+        baseMaterial.uniforms.uMouse.value.copy(mouseRef.current);
+        renderer.render(scene, camera);
+      }
       animId = requestAnimationFrame(animate);
     };
 
@@ -83,6 +95,7 @@ export default function HeroCanvas() {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animId);
+      observer.disconnect();
       renderer.dispose();
       if (container && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);

@@ -57,7 +57,7 @@ const fragmentShader = `
     float v = 0.0;
     float a = 0.5;
     vec2 shift = vec2(100);
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 3; ++i) {
       v += a * snoise(p);
       p = p * 2.0 + shift;
       a *= 0.5;
@@ -168,7 +168,7 @@ export default function NoiseBackground(props: NoiseBackgroundProps) {
       <Canvas
         camera={{ position: [0, 0, 1] }}
         gl={{ antialias: false, stencil: false, depth: false }}
-        dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 2) : 1}
+        dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.5) : 1}
       >
         <NoisePlane {...props} />
       </Canvas>

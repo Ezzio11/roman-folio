@@ -7,28 +7,35 @@ const anton = Anton({
   weight: "400",
   variable: "--font-anton",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
   variable: "--font-bebas",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const barlow = Barlow_Condensed({
   weight: ["400", "700", "900"],
   variable: "--font-barlow",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Roman Reigns — Tribal Chief",
   description: "The official resume of Roman Reigns. Undisputed. Head of the Table.",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

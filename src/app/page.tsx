@@ -1,16 +1,21 @@
+"use client";
+
+import dynamic from 'next/dynamic';
 import Hero from "@/components/Hero";
 import Header from "@/components/Resume/Header";
 import Objective from "@/components/Resume/Objective";
-import Experience from "@/components/Resume/Experience";
-import Skills from "@/components/Resume/Skills";
-import DominanceDashboard from "@/components/Resume/DominanceDashboard";
-import Education from "@/components/Resume/Education";
-import References from "@/components/Resume/References";
-import Contact from "@/components/Resume/Contact";
-import Counter1316 from "@/components/Resume/Counter1316";
-import GridMotion from "@/components/Animations/GridMotion";
-import SplashCursor from "@/components/Animations/SplashCursor";
-import AcknowledgeNavigator from "@/components/Resume/AcknowledgeNavigator";
+
+// Below-the-fold components are loaded dynamically
+const Experience = dynamic(() => import("@/components/Resume/Experience"), { ssr: false });
+const Skills = dynamic(() => import("@/components/Resume/Skills"), { ssr: false });
+const DominanceDashboard = dynamic(() => import("@/components/Resume/DominanceDashboard"), { ssr: false });
+const Education = dynamic(() => import("@/components/Resume/Education"), { ssr: false });
+const References = dynamic(() => import("@/components/Resume/References"), { ssr: false });
+const Contact = dynamic(() => import("@/components/Resume/Contact"), { ssr: false });
+const Counter1316 = dynamic(() => import("@/components/Resume/Counter1316"), { ssr: false });
+const GridMotion = dynamic(() => import("@/components/Animations/GridMotion"), { ssr: false });
+const SplashCursor = dynamic(() => import("@/components/Animations/SplashCursor"), { ssr: false });
+const AcknowledgeNavigator = dynamic(() => import("@/components/Resume/AcknowledgeNavigator"), { ssr: false });
 
 const bloodlineItems = [
   "/highlights/wrestlemania_unification_2022.webp", "Spear", "/highlights/crowned_as_tribal_chief.webp", "Superman Punch", "/highlights/elimination_chamber_2018.webp", "Elimination Chamber", "/highlights/ulafala_win_again_solosikoa.webp",

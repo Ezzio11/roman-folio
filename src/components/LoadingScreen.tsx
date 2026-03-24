@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "motion/react";
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
+import Image from "next/image";
 
 /* ─────────────────────────────────────────────
    The "Acknowledgment" Loading Screen
@@ -135,13 +136,19 @@ export default function LoadingScreen() {
                 animate={{ scale: [1, 1.03, 1] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               >
-                <div 
-                  className="w-full h-full bg-contain bg-center bg-no-repeat"
-                  style={{ 
-                    backgroundImage: "url('/otc1.webp')",
-                    filter: "drop-shadow(0 0 10px rgba(0,0,0,0.5))"
-                  }}
-                />
+                <div
+                  className="relative w-full h-full"
+                  style={{ filter: "drop-shadow(0 0 10px rgba(0,0,0,0.5))" }}
+                >
+                  <Image
+                    src="/otc1.webp"
+                    alt="One True Chief"
+                    fill
+                    priority
+                    className="object-contain"
+                    sizes="(max-width: 768px) 192px, 256px"
+                  />
+                </div>
               </motion.div>
               
               {/* Outer decorative ring */}

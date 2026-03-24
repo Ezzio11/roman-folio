@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, FC, ReactNode } from 'react';
 import { gsap } from 'gsap';
+import Image from 'next/image';
 import './GridMotion.css';
 
 interface GridMotionProps {
@@ -100,15 +101,16 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
                   <div key={itemIndex} className="row__item">
                     <div className="row__item-inner" style={{ backgroundColor: '#111' }}>
                       {typeof content === 'string' && (content.startsWith('http') || content.startsWith('/') || content.includes('.jpg') || content.includes('.png')) ? (
-                        <div
-                          className="row__item-img"
-                          style={{
-                            backgroundImage: `url(${content})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            filter: 'grayscale(1) contrast(1.2)'
-                          }}
-                        ></div>
+                        <div className="row__item-img relative w-full h-full overflow-hidden">
+                          <Image
+                            src={content}
+                            alt="Bloodline Highlight"
+                            fill
+                            sizes="(max-width: 768px) 100vw, 300px"
+                            className="object-cover grayscale contrast-[1.2] transition-transform duration-500 group-hover:scale-110"
+                            loading="lazy"
+                          />
+                        </div>
                       ) : (
                         <div className="row__item-content">{content}</div>
                       )}
