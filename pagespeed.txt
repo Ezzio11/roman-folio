@@ -1,0 +1,299 @@
+Performance
+89
+Accessibility
+100
+Best Practices
+100
+SEO
+60
+FCP
++10
+LCP
++25
+TBT
++0
+CLS
++25
+SI
++0
+Performance
+Values are estimated and may vary. The performance score is calculated directly from these metrics.See calculator.
+0–49
+50–89
+90–100
+Final Screenshot
+
+Metrics
+Expand view
+First Contentful Paint
+0.2 s
+Largest Contentful Paint
+0.5 s
+Total Blocking Time
+15,390 ms
+Cumulative Layout Shift
+0.002
+Speed Index
+7.0 s
+Captured at 24 Mar 2026, 17:34 EET
+Emulated desktop with Lighthouse 13.0.1
+Single-page session
+Initial page load
+Custom throttling
+Using HeadlessChromium 145.0.7632.159 with lr
+View Treemap
+Screenshot
+Screenshot
+Screenshot
+Screenshot
+Screenshot
+Screenshot
+Screenshot
+Screenshot
+Show audits relevant to:
+
+All
+
+FCP
+
+LCP
+
+TBT
+
+CLS
+Insights
+Forced reflow
+A forced reflow occurs when JavaScript queries geometric properties (such as offsetWidth) after styles have been invalidated by a change to the DOM state. This can result in poor performance. Learn more about forced reflows and possible mitigations.Unscored
+Top function call
+Total reflow time
+…chunks/0zv5p1_.t81dy.js:2:8421(romanfolio.ezzio.me)
+92 ms
+Source
+Total reflow time
+…chunks/05uod-klg9hdj.js:1:134605(romanfolio.ezzio.me)
+91 ms
+[unattributed]
+2 ms
+…chunks/0w3d7k2244r55.js:1:1619(romanfolio.ezzio.me)
+1 ms
+…chunks/0ssuveu794vha.js:1:6278(romanfolio.ezzio.me)
+5 ms
+…chunks/0xhdwft1qtr2p.js:1:53839(romanfolio.ezzio.me)
+5 ms
+…chunks/0ziqf6_eis67t.js:244:5296(romanfolio.ezzio.me)
+10 ms
+Network dependency tree
+Avoid chaining critical requests by reducing the length of chains, reducing the download size of resources or deferring the download of unnecessary resources to improve page load.LCPUnscored
+Maximum critical path latency: 1,200 ms
+Initial Navigation
+https://romanfolio.ezzio.me - 831 ms, 8.69 KiB
+…chunks/15nms-q8.pf7k.css(romanfolio.ezzio.me) - 1,200 ms, 10.98 KiB
+Preconnected origins
+preconnect hints help the browser establish a connection earlier in the page load, saving time when the first request for that origin is made. The following are the origins that the page preconnected to.
+no origins were preconnected
+Preconnect candidates
+Add preconnect hints to your most important origins, but try to use no more than 4.
+No additional origins are good candidates for preconnecting
+Improve image delivery Est savings of 29 KiB
+Reducing the download time of images can improve the perceived load time of the page and LCP. Learn more about optimising image sizeLCPFCPUnscored
+URL
+Resource size
+Est savings
+ezzio.me First party
+67.0 KiB	29.5 KiB
+body.min-h-full > div.tribal-texture
+<div class="tribal-texture">
+/tribal-pattern.webp(romanfolio.ezzio.me)
+67.0 KiB
+29.5 KiB
+Increasing the image compression factor could improve this image's download size.
+29.5 KiB
+Render blocking requests
+Requests are blocking the page's initial render, which may delay LCP. Deferring or inlining can move these network requests out of the critical path.LCPFCPUnscored
+URL
+Transfer size
+Duration
+ezzio.me First party
+11.0 KiB	0 ms
+…chunks/15nms-q8.pf7k.css(romanfolio.ezzio.me)
+11.0 KiB
+Legacy JavaScript Est savings of 14 KiB
+Polyfills and transforms enable older browsers to use new JavaScript features. However, many aren't necessary for modern browsers. Consider modifying your JavaScript build process to not transpile Baseline features, unless you know that you must support older browsers. Learn why most sites can deploy ES6+ code without transpilingLCPFCPUnscored
+URL
+Wasted bytes
+ezzio.me First party
+13.7 KiB
+…chunks/0zv5p1_.t81dy.js(romanfolio.ezzio.me)
+13.7 KiB
+…chunks/0zv5p1_.t81dy.js:1:6431(romanfolio.ezzio.me)
+Array.prototype.at
+…chunks/0zv5p1_.t81dy.js:1:5819(romanfolio.ezzio.me)
+Array.prototype.flat
+…chunks/0zv5p1_.t81dy.js:1:5932(romanfolio.ezzio.me)
+Array.prototype.flatMap
+…chunks/0zv5p1_.t81dy.js:1:6308(romanfolio.ezzio.me)
+Object.fromEntries
+…chunks/0zv5p1_.t81dy.js:1:6566(romanfolio.ezzio.me)
+Object.hasOwn
+…chunks/0zv5p1_.t81dy.js:1:5561(romanfolio.ezzio.me)
+String.prototype.trimEnd
+…chunks/0zv5p1_.t81dy.js:1:5476(romanfolio.ezzio.me)
+String.prototype.trimStart
+Layout shift culprits
+Optimise DOM size
+LCP breakdown
+These insights are also available in the Chrome DevTools performance panel – record a trace to view more detailed information.
+Diagnostics
+Minimise main-thread work 28.8 s
+Consider reducing the time spent parsing, compiling and executing JS. You may find delivering smaller JS payloads helps with this. Learn how to minimise main-thread workTBTUnscored
+Category
+Time Spent
+Other
+26,444 ms
+Script Evaluation
+1,742 ms
+Style & Layout
+311 ms
+Script Parsing & Compilation
+146 ms
+Rendering
+102 ms
+Garbage Collection
+40 ms
+Parse HTML & CSS
+9 ms
+Reduce JavaScript execution time 1.8 s
+Consider reducing the time spent parsing, compiling and executing JS. You may find delivering smaller JS payloads helps with this. Learn how to reduce Javascript execution time.TBTUnscored
+URL
+Total CPU Time
+Script Evaluation
+Script Parse
+ezzio.me First party
+28,513 ms	1,648 ms	109 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+22,141 ms
+151 ms
+10 ms
+…chunks/0zv5p1_.t81dy.js(romanfolio.ezzio.me)
+5,255 ms
+696 ms
+17 ms
+…chunks/01qlbtuiwshbl.js(romanfolio.ezzio.me)
+435 ms
+372 ms
+62 ms
+…chunks/0il5k9nfqphbp.js(romanfolio.ezzio.me)
+255 ms
+251 ms
+4 ms
+https://romanfolio.ezzio.me
+201 ms
+2 ms
+1 ms
+…chunks/0drmebz6v4i8_.js(romanfolio.ezzio.me)
+170 ms
+156 ms
+13 ms
+…chunks/0ziqf6_eis67t.js(romanfolio.ezzio.me)
+56 ms
+20 ms
+2 ms
+Unattributable
+153 ms	24 ms	0 ms
+Unattributable
+153 ms
+24 ms
+0 ms
+Reduce unused JavaScript Est savings of 195 KiB
+Reduce unused JavaScript and defer loading scripts until they are required to decrease bytes consumed by network activity. Learn how to reduce unused JavaScript.LCPFCPUnscored
+URL
+Transfer size
+Est savings
+ezzio.me First party
+379.3 KiB	194.7 KiB
+…chunks/01qlbtuiwshbl.js(romanfolio.ezzio.me)
+231.4 KiB
+118.6 KiB
+…chunks/0drmebz6v4i8_.js(romanfolio.ezzio.me)
+48.4 KiB
+29.7 KiB
+…chunks/08z---7.t4pgk.js(romanfolio.ezzio.me)
+29.1 KiB
+24.5 KiB
+…chunks/0zv5p1_.t81dy.js(romanfolio.ezzio.me)
+70.5 KiB
+21.9 KiB
+Avoid long main-thread tasks 20 long tasks found
+Lists the longest tasks on the main thread – useful for identifying worst contributors to input delay. Learn how to avoid long main-thread tasksTBTUnscored
+URL
+Start Time
+Duration
+ezzio.me First party
+10,082 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+24,083 ms
+1,379 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+14,271 ms
+1,231 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+20,865 ms
+1,225 ms
+…chunks/0zv5p1_.t81dy.js(romanfolio.ezzio.me)
+10,959 ms
+1,215 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+17,515 ms
+1,206 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+7,731 ms
+861 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+4,985 ms
+529 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+2,251 ms
+326 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+3,706 ms
+222 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+3,097 ms
+209 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+4,652 ms
+178 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+1,334 ms
+177 ms
+…chunks/0zv5p1_.t81dy.js(romanfolio.ezzio.me)
+7,404 ms
+171 ms
+…chunks/0drmebz6v4i8_.js(romanfolio.ezzio.me)
+618 ms
+170 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+6,620 ms
+168 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+9,066 ms
+168 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+6,301 ms
+163 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+4,091 ms
+162 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+7,243 ms
+161 ms
+…chunks/05uod-klg9hdj.js(romanfolio.ezzio.me)
+8,905 ms
+161 ms
+Avoid non-composited animations 1 animated element found
+Animations that are not composited can be poor, slow and increase CLS. Learn how to avoid non-composited animationsCLSUnscored
+Element
+Sacred Ulafala
+<div class="absolute inset-0 w-full h-full scale-110 mix-blend-screen" style="">
+Filter-related property may move pixels
+

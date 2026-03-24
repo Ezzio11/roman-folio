@@ -45,31 +45,34 @@ export default function Experience() {
           priority
         />
 
-        {/* Ulafala layer — isolated pulsing sacred glow 🩸🔥✨ */}
-        <motion.div
-          className="absolute inset-0 w-full h-full scale-110 mix-blend-screen"
-          initial={{
-            filter: "brightness(1.5) drop-shadow(0 0 20px rgba(255, 30, 30, 0.9)) drop-shadow(0 0 50px rgba(200, 0, 0, 0.7)) drop-shadow(0 0 100px rgba(180, 0, 0, 0.5))",
-            opacity: 0.9
-          }}
-          animate={{
-            filter: [
-              "brightness(1.5) drop-shadow(0 0 20px rgba(255, 30, 30, 0.8)) drop-shadow(0 0 40px rgba(200, 0, 0, 0.6))",
-              "brightness(2.2) drop-shadow(0 0 40px rgba(255, 50, 50, 0.9)) drop-shadow(0 0 80px rgba(230, 0, 0, 0.8)) drop-shadow(0 0 100px rgba(200, 0, 0, 0.6))",
-              "brightness(1.5) drop-shadow(0 0 20px rgba(255, 30, 30, 0.8)) drop-shadow(0 0 40px rgba(200, 0, 0, 0.6))",
-            ],
-            opacity: [0.8, 1, 0.8]
-          }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <Image
-            src="/ulafala.webp"
-            alt="Sacred Ulafala"
-            fill
-            sizes="(max-width: 1024px) 30vw, 20vw"
-            className="object-contain object-left"
+        {/* Isolated pulsing sacred glow — Composited via opacity/scale 🍷🔥✨ */}
+        <div className="absolute inset-0 w-full h-full scale-110 flex items-center justify-center pointer-events-none">
+          {/* Animated Glow Halo */}
+          <motion.div
+            className="absolute w-[300px] h-[300px] bg-[--accent] rounded-full blur-[100px]"
+            animate={{
+              opacity: [0.3, 0.6, 0.3],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
-        </motion.div>
+          
+          <motion.div
+            className="relative w-full h-full"
+            animate={{
+              opacity: [0.8, 1, 0.8],
+            }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Image
+              src="/ulafala.webp"
+              alt="Sacred Ulafala"
+              fill
+              sizes="(max-width: 1024px) 30vw, 20vw"
+              className="object-contain object-left brightness-125"
+            />
+          </motion.div>
+        </div>
       </div>
 
       <div className="relative z-10 max-w-2xl ml-auto lg:mr-32">

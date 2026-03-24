@@ -5,8 +5,9 @@ import DecryptedText from "@/components/Animations/DecryptedText"
 import Magnet from "@/components/Animations/Magnet";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { useRef, useEffect } from "react";
-import HeroCanvas from "@/components/Hero/HeroCanvas";
-import NoiseBackground from "@/components/Animations/NoiseBackground";
+import dynamic from 'next/dynamic';
+const HeroCanvas = dynamic(() => import("@/components/Hero/HeroCanvas"), { ssr: false });
+const NoiseBackground = dynamic(() => import("@/components/Animations/NoiseBackground"), { ssr: false });
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,14 +27,17 @@ export default function Hero() {
   const rectRef = useRef<DOMRect | null>(null);
 
   useEffect(() => {
-    const updateRect = () => {
-      if (containerRef.current) {
-        rectRef.current = containerRef.current.getBoundingClientRect();
+    if (!containerRef.current) return;
+    
+    // Performance: Use ResizeObserver instead of getBoundingClientRect in a resize listener ☝️🎬
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        rectRef.current = entry.target.getBoundingClientRect();
       }
-    };
-    updateRect();
-    window.addEventListener("resize", updateRect);
-    return () => window.removeEventListener("resize", updateRect);
+    });
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
   }, []);
 
   const handleMouseMove = (e: React.MouseEvent) => {

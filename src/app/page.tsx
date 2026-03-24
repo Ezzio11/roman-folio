@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from 'next/dynamic';
-import Hero from "@/components/Hero";
+const Hero = dynamic(() => import("@/components/Hero"), { ssr: false });
 import Header from "@/components/Resume/Header";
 import Objective from "@/components/Resume/Objective";
 
