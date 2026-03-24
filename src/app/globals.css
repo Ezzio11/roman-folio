@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+:root {
+  --background: #050000;
+  /* Deep Obsidian */
+  --foreground: #ffffff;
+
+  /* Tribal Chief Theme (Default) - VIBRANT MODE */
+  --accent: #b30000;
+  /* Blood Red */
+  --accent-gold: #ffcc00;
+  /* Royal Gold */
+  --card-bg: #0a0505;
+  --border-color: #1a0505;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-inter), sans-serif;
+  }
+}
+
+.font-heading {
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 900;
+}
+
+.font-subheading {
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.font-body {
+  font-family: var(--font-inter), sans-serif;
+}
+
+.font-data {
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 500;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.vertical-rl {
+  writing-mode: vertical-rl;
+}
+
+.noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.05;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.tribal-texture {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image: url('/tribal-pattern.webp');
+  background-repeat: repeat;
+  background-size: 280px;
+  opacity: 0.02;
+  z-index: 9990;
+  filter: grayscale(1) invert(1);
+  mix-blend-mode: screen;
+}
+
+/* ☝️ Hide scrollbars while keeping functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
