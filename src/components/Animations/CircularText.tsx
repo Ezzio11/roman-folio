@@ -96,6 +96,15 @@ const CircularText: React.FC<CircularTextProps> = ({
   }, []);
 
   useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []); // Only on unmount ☝️🚀
+
+  useEffect(() => {
     if (!isVisible) {
       controls.stop();
       return;
@@ -113,14 +122,6 @@ const CircularText: React.FC<CircularTextProps> = ({
         from: start
       }
     });
-
-    return () => {
-      // Clean up audio on unmount
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
   }, [isPlaying, spinDuration, controls, isVisible]);
 
   return (
