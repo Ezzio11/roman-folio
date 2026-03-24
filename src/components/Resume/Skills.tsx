@@ -1,6 +1,8 @@
 "use client";
 
-import FallingText from "@/components/Animations/FallingText";
+import dynamic from "next/dynamic";
+
+const FallingText = dynamic(() => import("@/components/Animations/FallingText"), { ssr: false });
 
 const skillsResource = [
   { category: "MANAGERIAL DOMINANCE", items: ["Personnel Management", "Crisis Resolution", "Succession Planning", "Strategic Negotiation"] },

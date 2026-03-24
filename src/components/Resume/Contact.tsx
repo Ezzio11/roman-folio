@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Magnet from "@/components/Animations/Magnet";
 import { motion, AnimatePresence } from "framer-motion";
-import Antigravity from "@/components/Animations/Antigravity";
+import dynamic from "next/dynamic";
+
+const Antigravity = dynamic(() => import("@/components/Animations/Antigravity"), { ssr: false });
 import TextType from "@/components/Animations/TextType";
 import EliteShowcase from "@/components/Resume/EliteShowcase";
 import { createPortal } from "react-dom";
