@@ -60,31 +60,28 @@ export default function Hero() {
       className="relative w-full h-[200vh] overflow-visible bg-black perspective-[1500px]"
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
+        {/* 3D Background - FIXED (No expensive 3D transforms here) ☝️🎬 */}
+        <div className="absolute inset-0 z-0 text-white">
+          <NoiseBackground
+            colorA="#000000"
+            colorB="#ff0000"
+            noiseScale={100}
+            amplitude={83}
+            skew={50}
+            phase={35}
+            threshold={50}
+            bulgeAmount={53}
+            bulgeScale={0.5}
+            trackMouse={10}
+          />
+          <HeroCanvas />
+        </div>
+
+        {/* Interactive UI & Branding - 3D Transformed ☝️🎬🧨 */}
         <motion.div
           style={{ rotateX, scale, opacity, translateZ, transformStyle: "preserve-3d" }}
-          className="relative w-full h-full flex flex-col justify-between"
+          className="relative z-10 w-full h-full flex flex-col justify-between"
         >
-          {/* 3D Background & Depth Evolution */}
-          <div className="absolute inset-0 z-0 text-white">
-            <NoiseBackground
-              colorA="#000000"
-              colorB="#ff0000"
-              noiseScale={100}
-              amplitude={83}
-              skew={50}
-              phase={35}
-              threshold={50}
-              bulgeAmount={53}
-              bulgeScale={0.5}
-              trackMouse={10}
-            />
-            <HeroCanvas />
-
-            {/* Branding Cover - Covers potential canvas attributions 
-            <div className="absolute bottom-0 left-0 w-full h-20 bg-black z-10" />
-            
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60 z-20" /> */}
-          </div>
 
           {/* Main Branding - Left Aligned & Vertical Approach */}
           <div className="relative z-20 flex-1 flex flex-col justify-center px-8 md:px-16 pointer-events-none">

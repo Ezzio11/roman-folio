@@ -91,12 +91,12 @@ export default function Header() {
             <div className="relative">
               <h1 className="text-7xl md:text-[8.5rem] font-black tracking-tighter uppercase leading-[0.8] text-white font-heading mix-blend-difference">
                 <div className="overflow-visible">
-                  <motion.div style={{ x: romanX, y: romanY, rotate: romanRotate, opacity: romanOpacity }} className="origin-bottom-left inline-block">
+                  <motion.div style={{ x: romanX, y: romanY, rotate: romanRotate, opacity: romanOpacity }} className="origin-bottom-left inline-block will-change-transform">
                     LEATI JOSEPH
                   </motion.div>
                 </div>
                 <div className="overflow-visible">
-                  <motion.div style={{ x: reignsX, y: reignsY, rotate: reignsRotate, opacity: reignsOpacity }} className="text-[--accent-gold] origin-top-right inline-block">
+                  <motion.div style={{ x: reignsX, y: reignsY, rotate: reignsRotate, opacity: reignsOpacity }} className="text-[--accent-gold] origin-top-right inline-block will-change-transform">
                     ANOA&apos;I
                   </motion.div>
                 </div>
@@ -165,11 +165,11 @@ export default function Header() {
             rotate: 8
           }}
           // Note: w-[100vw] to ensure it covers everything at impact
-          className="absolute top-1/2 w-[90vw] md:w-[70vw] aspect-video z-30 pointer-events-none"
+          className="absolute top-1/2 w-[90vw] md:w-[70vw] aspect-video z-30 pointer-events-none will-change-transform"
         >
           <div className="w-full h-full relative group">
             {/* 1. Motion Blur Trail */}
-            <div className="absolute inset-0 w-full h-full opacity-30 blur-[12px] translate-x-[-40px]">
+            <div className="absolute inset-0 w-full h-full opacity-30 blur-[8px] translate-x-[-40px]">
               <Image
                 src="/spear.webp"
                 alt=""
@@ -186,7 +186,7 @@ export default function Header() {
               sizes="(max-width: 768px) 100vw, 70vw"
               className="object-contain relative z-10"
               style={{
-                filter: "contrast(1.2) brightness(1.1) drop-shadow(0px 10px 40px rgba(255, 0, 0, 0.4)) drop-shadow(0px 0px 80px rgba(0, 0, 0, 0.8))"
+                filter: "contrast(1.1) brightness(1.1) drop-shadow(0px 0px 30px rgba(255, 0, 0, 0.4))"
               }}
               priority
             />
