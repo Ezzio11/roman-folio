@@ -9,7 +9,12 @@ export default function AcknowledgeNavigator() {
   const [activePos, setActivePos] = useState<Position>("TOP");
 
   useEffect(() => {
+    let lastScrollTime = 0;
     const handleScroll = () => {
+      const now = Date.now();
+      if (now - lastScrollTime < 100) return; // Throttle to 10fps for position checks
+      lastScrollTime = now;
+
       const scrollPos = window.scrollY;
       const threshold = 300; // Pixels from top/bottom to activate
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -18,12 +23,10 @@ export default function AcknowledgeNavigator() {
         setActivePos("TOP");
       } else if (scrollPos > maxScroll - threshold) {
         setActivePos("BOTTOM");
-      } else {
-        // Between top and bottom, could be null or just keep previous
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 

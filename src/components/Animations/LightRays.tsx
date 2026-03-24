@@ -296,7 +296,9 @@ void main() {
 
         renderer.dpr = Math.min(window.devicePixelRatio, 2);
 
-        const { clientWidth: wCSS, clientHeight: hCSS } = containerRef.current;
+        const rect = containerRef.current.getBoundingClientRect();
+        rectRef.current = rect;
+        const { width: wCSS, height: hCSS } = rect;
         renderer.setSize(wCSS, hCSS);
 
         const dpr = renderer.dpr;
@@ -429,20 +431,24 @@ void main() {
     distortion
   ]);
 
+  const rectRef = useRef<DOMRect | null>(null);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current || !rendererRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
+      if (!isVisible || !containerRef.current) return;
+      
+      // Use cached rect if available, otherwise fallback (rare)
+      const rect = rectRef.current || containerRef.current.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
       const y = (e.clientY - rect.top) / rect.height;
       mouseRef.current = { x, y };
     };
 
     if (followMouse) {
-      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mousemove', handleMouseMove, { passive: true });
       return () => window.removeEventListener('mousemove', handleMouseMove);
     }
-  }, [followMouse]);
+  }, [followMouse, isVisible]);
 
   return <div ref={containerRef} className={`light-rays-container ${className}`.trim()} />;
 };

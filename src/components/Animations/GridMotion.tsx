@@ -23,32 +23,34 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
   useEffect(() => {
     gsap.ticker.lagSmoothing(0);
 
+    let isVisible = true;
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+    }, { threshold: 0 });
+
+    if (gridRef.current) {
+      observer.observe(gridRef.current);
+    }
+
     const updateMotion = (): void => {
-      const speed = isHoveredRef.current ? 0.3 : 1.2; // 🎢 Slow down on hover instead of pause 👑🛠️
+      if (!isVisible) return;
+      const speed = isHoveredRef.current ? 0.3 : 1.2; 
 
       rowRefs.current.forEach((row, index) => {
         if (row) {
           const direction = index % 2 === 0 ? 1 : -1;
           xPositionsRef.current[index] += speed * direction;
           
-          // Looping Logic: ☝️🧭
-          // Since we triple the items, the 'cycle' of one set of 7 is the width / 3
-          // For right-scrolling (direction = 1): Reset if it goes too far right.
-          // For left-scrolling (direction = -1): Reset if it goes too far left.
-          
           const rowWidth = row.scrollWidth;
           const cycleWidth = rowWidth / 3;
-          
           let x = xPositionsRef.current[index];
 
           if (direction === 1) {
-            // Right-moving: Reset when it has moved exactly one cycle width
             if (x >= 0) {
               x = -cycleWidth;
               xPositionsRef.current[index] = x;
             }
           } else {
-            // Left-moving: Reset when it has moved exactly one cycle width
             if (Math.abs(x) >= cycleWidth) {
               x = 0;
               xPositionsRef.current[index] = x;
@@ -62,16 +64,20 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
 
     const removeAnimationLoop = gsap.ticker.add(updateMotion);
 
+    const handleMouseEnter = () => { isHoveredRef.current = true; };
+    const handleMouseLeave = () => { isHoveredRef.current = false; };
+
     const grid = gridRef.current;
     if (grid) {
-      grid.addEventListener('mouseenter', () => { isHoveredRef.current = true; });
-      grid.addEventListener('mouseleave', () => { isHoveredRef.current = false; });
+      grid.addEventListener('mouseenter', handleMouseEnter);
+      grid.addEventListener('mouseleave', handleMouseLeave);
     }
 
     return () => {
+      observer.disconnect();
       if (grid) {
-        grid.removeEventListener('mouseenter', () => { isHoveredRef.current = true; });
-        grid.removeEventListener('mouseleave', () => { isHoveredRef.current = false; });
+        grid.removeEventListener('mouseenter', handleMouseEnter);
+        grid.removeEventListener('mouseleave', handleMouseLeave);
       }
       removeAnimationLoop();
     };

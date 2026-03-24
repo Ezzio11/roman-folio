@@ -850,6 +850,15 @@ export default function SplashCursor({
         requestAnimationFrame(updateFrame);
         return;
       }
+
+      if (pendingMove.changed) {
+        const pointer = pointers[0];
+        const posX = scaleByPixelRatio(pendingMove.x);
+        const posY = scaleByPixelRatio(pendingMove.y);
+        updatePointerMoveData(pointer, posX, posY, pointer.color);
+        pendingMove.changed = false;
+      }
+
       const dt = calcDeltaTime();
       if (resizeCanvas()) initFramebuffers();
       updateColors(dt);
@@ -1141,6 +1150,8 @@ export default function SplashCursor({
       return ((value - min) % range) + min;
     }
 
+    const pendingMove = { x: 0, y: 0, changed: false };
+
     window.addEventListener('mousedown', e => {
       const pointer = pointers[0];
       const posX = scaleByPixelRatio(e.clientX);
@@ -1161,53 +1172,29 @@ export default function SplashCursor({
     document.body.addEventListener('mousemove', handleFirstMouseMove);
 
     window.addEventListener('mousemove', e => {
-      const pointer = pointers[0];
-      const posX = scaleByPixelRatio(e.clientX);
-      const posY = scaleByPixelRatio(e.clientY);
-      const color = pointer.color;
-      updatePointerMoveData(pointer, posX, posY, color);
-    });
+      pendingMove.x = e.clientX;
+      pendingMove.y = e.clientY;
+      pendingMove.changed = true;
+    }, { passive: true });
 
-    function handleFirstTouchStart(e: TouchEvent) {
+    window.addEventListener('touchstart', e => {
       const touches = e.targetTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
         const posX = scaleByPixelRatio(touches[i].clientX);
         const posY = scaleByPixelRatio(touches[i].clientY);
-        updateFrame();
         updatePointerDownData(pointer, touches[i].identifier, posX, posY);
       }
-      document.body.removeEventListener('touchstart', handleFirstTouchStart);
-    }
-    document.body.addEventListener('touchstart', handleFirstTouchStart);
+    }, { passive: true });
 
-    window.addEventListener(
-      'touchstart',
-      e => {
-        const touches = e.targetTouches;
-        const pointer = pointers[0];
-        for (let i = 0; i < touches.length; i++) {
-          const posX = scaleByPixelRatio(touches[i].clientX);
-          const posY = scaleByPixelRatio(touches[i].clientY);
-          updatePointerDownData(pointer, touches[i].identifier, posX, posY);
-        }
-      },
-      false
-    );
-
-    window.addEventListener(
-      'touchmove',
-      e => {
-        const touches = e.targetTouches;
-        const pointer = pointers[0];
-        for (let i = 0; i < touches.length; i++) {
-          const posX = scaleByPixelRatio(touches[i].clientX);
-          const posY = scaleByPixelRatio(touches[i].clientY);
-          updatePointerMoveData(pointer, posX, posY, pointer.color);
-        }
-      },
-      false
-    );
+    window.addEventListener('touchmove', e => {
+      const touches = e.targetTouches;
+      if (touches.length > 0) {
+        pendingMove.x = touches[0].clientX;
+        pendingMove.y = touches[0].clientY;
+        pendingMove.changed = true;
+      }
+    }, { passive: true });
 
     window.addEventListener('touchend', e => {
       const touches = e.changedTouches;
