@@ -23,7 +23,10 @@ const nextConfig: NextConfig = {
       '@tabler/icons-react',
       'lucide-react',
       'react-icons',
-      'gsap'
+      'gsap',
+      'three',
+      'ogl',
+      'matter-js'
     ],
   },
 };

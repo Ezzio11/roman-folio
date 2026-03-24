@@ -111,9 +111,10 @@ interface NoiseBackgroundProps {
   className?: string;
 }
 
-function NoisePlane(props: NoiseBackgroundProps) {
+function NoisePlane(props: NoiseBackgroundProps & { isVisible: boolean }) {
   const { size } = useThree();
   const meshRef = useRef<Mesh>(null);
+  const { isVisible } = props;
 
   const uniforms = useMemo(
     () => ({
@@ -137,13 +138,12 @@ function NoisePlane(props: NoiseBackgroundProps) {
   const timeRef = useRef(0);
 
   useFrame((state, delta) => {
+    if (!isVisible) return; // Pause if off-screen ☝️🎬
+    
     if (meshRef.current) {
       const material = meshRef.current.material as ShaderMaterial;
-      
-      // Modern Timer Replacement logic 👑🛠️
       timeRef.current += delta;
       material.uniforms.uTime.value = timeRef.current;
-      
       material.uniforms.uMouse.value.lerp(state.mouse, 0.1);
       material.uniforms.uResolution.value.set(size.width, size.height);
     }
@@ -163,14 +163,27 @@ function NoisePlane(props: NoiseBackgroundProps) {
 }
 
 export default function NoiseBackground(props: NoiseBackgroundProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsVisible(entry.isIntersecting);
+    }, { threshold: 0 });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className={`absolute inset-0 z-0 pointer-events-none ${props.className}`}>
+    <div ref={containerRef} className={`absolute inset-0 z-0 pointer-events-none ${props.className}`}>
       <Canvas
         camera={{ position: [0, 0, 1] }}
         gl={{ antialias: false, stencil: false, depth: false }}
         dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.5) : 1}
+        frameloop={isVisible ? "always" : "demand"}
       >
-        <NoisePlane {...props} />
+        <NoisePlane {...props} isVisible={isVisible} />
       </Canvas>
     </div>
   );

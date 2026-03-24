@@ -15,6 +15,7 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isHoveredRef = useRef<boolean>(false);
   const xPositionsRef = useRef<number[]>([0, 0, 0, 0]);
+  const rowWidthsRef = useRef<number[]>([0, 0, 0, 0]);
 
   const totalItems = 28;
   const defaultItems = Array.from({ length: totalItems }, (_, index) => `Item ${index + 1}`);
@@ -28,9 +29,13 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
       isVisible = entry.isIntersecting;
     }, { threshold: 0 });
 
-    if (gridRef.current) {
-      observer.observe(gridRef.current);
-    }
+    if (gridRef.current) observer.observe(gridRef.current);
+
+    const updateRowWidths = () => {
+      rowRefs.current.forEach((row, index) => {
+        if (row) rowWidthsRef.current[index] = row.scrollWidth;
+      });
+    };
 
     const updateMotion = (): void => {
       if (!isVisible) return;
@@ -41,7 +46,7 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
           const direction = index % 2 === 0 ? 1 : -1;
           xPositionsRef.current[index] += speed * direction;
           
-          const rowWidth = row.scrollWidth;
+          const rowWidth = rowWidthsRef.current[index];
           const cycleWidth = rowWidth / 3;
           let x = xPositionsRef.current[index];
 
@@ -62,6 +67,8 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
       });
     };
 
+    updateRowWidths();
+    window.addEventListener('resize', updateRowWidths);
     const removeAnimationLoop = gsap.ticker.add(updateMotion);
 
     const handleMouseEnter = () => { isHoveredRef.current = true; };
@@ -75,6 +82,7 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
 
     return () => {
       observer.disconnect();
+      window.removeEventListener('resize', updateRowWidths);
       if (grid) {
         grid.removeEventListener('mouseenter', handleMouseEnter);
         grid.removeEventListener('mouseleave', handleMouseLeave);

@@ -845,18 +845,29 @@ export default function SplashCursor({
     let lastUpdateTime = Date.now();
     let colorUpdateTimer = 0.0;
 
+    let lastInputTime = Date.now();
+
     function updateFrame() {
       if (document.hidden) {
         requestAnimationFrame(updateFrame);
         return;
       }
 
+      const now = Date.now();
       if (pendingMove.changed) {
+        lastInputTime = now;
         const pointer = pointers[0];
         const posX = scaleByPixelRatio(pendingMove.x);
         const posY = scaleByPixelRatio(pendingMove.y);
         updatePointerMoveData(pointer, posX, posY, pointer.color);
         pendingMove.changed = false;
+      }
+
+      // Idle Timeout: ☝️💤
+      // If no input for 10 seconds, pause the simulation to save CPU/GPU.
+      if (now - lastInputTime > 10000) {
+        requestAnimationFrame(updateFrame);
+        return;
       }
 
       const dt = calcDeltaTime();
@@ -1153,6 +1164,7 @@ export default function SplashCursor({
     const pendingMove = { x: 0, y: 0, changed: false };
 
     window.addEventListener('mousedown', e => {
+      lastInputTime = Date.now();
       const pointer = pointers[0];
       const posX = scaleByPixelRatio(e.clientX);
       const posY = scaleByPixelRatio(e.clientY);
@@ -1161,6 +1173,7 @@ export default function SplashCursor({
     });
 
     function handleFirstMouseMove(e: MouseEvent) {
+      lastInputTime = Date.now();
       const pointer = pointers[0];
       const posX = scaleByPixelRatio(e.clientX);
       const posY = scaleByPixelRatio(e.clientY);
@@ -1178,6 +1191,7 @@ export default function SplashCursor({
     }, { passive: true });
 
     window.addEventListener('touchstart', e => {
+      lastInputTime = Date.now();
       const touches = e.targetTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
