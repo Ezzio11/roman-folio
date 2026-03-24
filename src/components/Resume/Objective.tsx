@@ -37,7 +37,7 @@ export default function Objective() {
             transition={{ delay: 0.4 + i * 0.15, duration: 0.6 }}
             className="space-y-1"
           >
-            <div className="text-3xl font-heading font-black text-white/90 drop-shadow-2xl">{stat.value}</div>
+            <div className="text-3xl font-heading font-black text-white/90" style={{ textShadow: '0 0 20px rgba(0,0,0,0.8)' }}>{stat.value}</div>
             <div className="text-[9px] font-mono text-white/30 uppercase tracking-[0.3em] whitespace-pre-line leading-relaxed border-l border-[--accent]/20 pl-3">
               {stat.label}
             </div>

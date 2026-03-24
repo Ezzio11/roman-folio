@@ -6,13 +6,21 @@ interface LazyHydrateProps {
   children: ReactNode;
   delay?: number;
   onIdle?: boolean;
+  ssrHeight?: string | number;
+  className?: string;
 }
 
 /**
  * LazyHydrate defers the rendering of its children to avoid TBT during the initial mount/load.
  * This is effective for "below-the-fold" content that doesn't need to be immediate.
  */
-export default function LazyHydrate({ children, delay = 800, onIdle = true }: LazyHydrateProps) {
+export default function LazyHydrate({ 
+  children, 
+  delay = 800, 
+  onIdle = true,
+  ssrHeight = 0,
+  className = ""
+}: LazyHydrateProps) {
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
@@ -32,8 +40,8 @@ export default function LazyHydrate({ children, delay = 800, onIdle = true }: La
   }, [delay, onIdle]);
 
   if (!shouldRender) {
-    // Return a fragment or a spacer with the same height if possible
-    return <div style={{ minHeight: "100px" }} />;
+    // Return a placeholder with reserved height to prevent CLS ☝️🎬
+    return <div className={className} style={{ height: ssrHeight, minHeight: ssrHeight }} aria-hidden="true" />;
   }
 
   return <>{children}</>;

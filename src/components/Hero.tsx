@@ -103,7 +103,7 @@ export default function Hero() {
           {/* Main Branding - Left Aligned & Vertical Approach */}
           <div className="relative z-20 flex-1 flex flex-col justify-center px-8 md:px-16 pointer-events-none">
             <div className="max-w-4xl space-y-6">
-              <div className="space-y-0 text-[--accent-gold] drop-shadow-[0_0_30px_rgba(255,204,0,0.2)]">
+              <div className="space-y-0 text-[--accent-gold]">
                 <h1 className="text-7xl md:text-[10rem] font-heading tracking-tighter uppercase leading-[0.8]">
                   <div className="overflow-hidden">
                     <motion.div

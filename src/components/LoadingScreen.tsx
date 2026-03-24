@@ -94,7 +94,7 @@ export default function LoadingScreen() {
               filter: "blur(24px)",
             }}
           />
-          <div className="relative z-10 w-full h-full flex items-center justify-center drop-shadow-[0_0_15px_rgba(230,0,0,0.3)]">
+          <div className="relative z-10 w-full h-full flex items-center justify-center">
             <Image src="/otc1.webp" alt="One True Chief" fill priority className="object-contain" />
           </div>
         </div>
@@ -112,7 +112,7 @@ export default function LoadingScreen() {
           {WORDS.map((word, i) => (
             <span 
               key={i}
-              className={`text-4xl md:text-7xl font-black tracking-[0.2em] transition-all duration-700 ${wordIndex >= i ? 'opacity-100 translate-y-0 filter-none' : 'opacity-0 translate-y-8 blur-md scale-95'} ${word === "ME" ? "text-[#e60000]" : "text-white"}`}
+              className={`text-4xl md:text-7xl font-black tracking-[0.2em] transition-all duration-700 ${wordIndex >= i ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 scale-95'} ${word === "ME" ? "text-[#e60000]" : "text-white"}`}
             >
               {word}
             </span>

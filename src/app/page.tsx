@@ -31,7 +31,7 @@ export default function Home() {
     <main className="relative min-h-screen bg-[--background] text-[--foreground] transition-colors duration-500 selection:bg-[--accent] selection:text-white">
       <PerformanceMonitor />
       
-      <LazyHydrate delay={1200}>
+      <LazyHydrate delay={1200} ssrHeight={0}>
         <SplashCursor />
         <AcknowledgeNavigator />
         <Counter1316 />
@@ -40,7 +40,7 @@ export default function Home() {
       <Hero />
 
       <div className="relative z-20 bg-[--background]">
-        <LazyHydrate delay={2000}>
+        <LazyHydrate delay={2000} ssrHeight="100vh">
           <div className="relative">
             <Header />
             <Objective />

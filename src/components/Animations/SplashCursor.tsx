@@ -215,13 +215,13 @@ class Material {
 }
 
 export default function SplashCursor({
-  SIM_RESOLUTION = 64,
-  DYE_RESOLUTION = 144,
+  SIM_RESOLUTION = 32,
+  DYE_RESOLUTION = 128,
   CAPTURE_RESOLUTION = 256,
   DENSITY_DISSIPATION = 3.5,
   VELOCITY_DISSIPATION = 2,
   PRESSURE = 0.1,
-  PRESSURE_ITERATIONS = 12, // Reduced for ☝️🚀 performance
+  PRESSURE_ITERATIONS = 4, // Reduced further for ☝️🚀 performance
   CURL = 3,
   SPLAT_RADIUS = 0.2,
   SPLAT_FORCE = 6000,

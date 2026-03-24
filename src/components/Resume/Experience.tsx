@@ -69,7 +69,7 @@ export default function Experience() {
                 alt="Sacred Ulafala"
                 fill
                 sizes="(max-width: 1024px) 30vw, 20vw"
-                className="object-contain object-left brightness-150 drop-shadow-[0_0_25px_rgba(230,0,0,0.6)]"
+                className="object-contain object-left brightness-150"
               />
             </motion.div>
           </div>
@@ -93,7 +93,7 @@ export default function Experience() {
                 <div className="p-8 space-y-4">
                   <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
-                      <h3 className="text-3xl font-black text-[--accent-gold] font-heading uppercase tracking-tight drop-shadow-sm">
+                      <h3 className="text-3xl font-black text-[--accent-gold] font-heading uppercase tracking-tight">
                         {exp.title}
                       </h3>
                       <p className="text-lg font-bold text-white font-subheading uppercase tracking-widest mt-1 opacity-80">
