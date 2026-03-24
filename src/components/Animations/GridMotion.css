@@ -43,7 +43,7 @@
 .row {
   display: grid;
   gap: 1.5rem;
-  grid-template-columns: repeat(21, 22vw); /* triple items, cinematic size */
+  grid-template-columns: repeat(14, 22vw); /* scaled to 2x items total ☝️🚀 */
   will-change: transform, filter;
   width: fit-content;
 }

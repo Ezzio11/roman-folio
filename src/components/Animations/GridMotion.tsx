@@ -47,7 +47,7 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
           xPositionsRef.current[index] += speed * direction;
           
           const rowWidth = rowWidthsRef.current[index];
-          const cycleWidth = rowWidth / 3;
+          const cycleWidth = rowWidth / 2; // Updated for 2x multiplier ☝️🚀
           let x = xPositionsRef.current[index];
 
           if (direction === 1) {
@@ -62,7 +62,7 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
             }
           }
 
-          gsap.set(row, { x: x });
+          gsap.set(row, { x: x, force3D: true }); // Hardware Accelerated ☝️🚀
         }
       });
     };
@@ -109,7 +109,6 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
               }}
             >
               {[...combinedItems.slice(rowIndex * 7, (rowIndex + 1) * 7), 
-                ...combinedItems.slice(rowIndex * 7, (rowIndex + 1) * 7), 
                 ...combinedItems.slice(rowIndex * 7, (rowIndex + 1) * 7)].map((content, itemIndex) => {
                 return (
                   <div key={itemIndex} className="row__item">

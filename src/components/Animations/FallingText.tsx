@@ -113,8 +113,10 @@ const FallingText: React.FC<FallingTextProps> = ({
 
       // Preparation for high-performance updates
       elem.style.position = 'absolute';
-      elem.style.willChange = 'transform, left, top';
-      elem.style.margin = '0'; // Ensure no layout interference
+      elem.style.left = '0'; // Fixed origin
+      elem.style.top = '0';  // Fixed origin
+      elem.style.willChange = 'transform';
+      elem.style.margin = '0'; 
 
       return { elem, body };
     });
@@ -145,12 +147,9 @@ const FallingText: React.FC<FallingTextProps> = ({
       if (isVisible) {
         wordBodies.forEach(({ body, elem }) => {
           const { x, y } = body.position;
-          elem.style.left = `${x}px`;
-          elem.style.top = `${y}px`;
-          elem.style.transform = `translate(-50%, -50%) rotate(${body.angle}rad)`;
+          // GPU-Accelerated Transform-Only Update ☝️🚀
+          elem.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) rotate(${body.angle}rad)`;
         });
-        // We update the engine here manually instead of using a Matter.Runner
-        // to have full control over visibility-based pausing.
         Engine.update(engine, 1000 / 60);
       }
       animId = requestAnimationFrame(updateLoop);

@@ -42,8 +42,8 @@ export default function AcknowledgeNavigator() {
   };
 
   return (
-    <div className="fixed top-8 right-8 z-[110] flex flex-col items-end gap-3 translate-y-[20%]">
-      <div className="flex bg-black/40 backdrop-blur-xl border border-white/10 rounded-full p-1 shadow-2xl overflow-hidden">
+    <div className="fixed top-8 right-8 z-[110] flex flex-col items-end gap-3 translate-y-[20%] will-change-transform">
+      <div className="flex bg-black/40 backdrop-blur-md border border-white/10 rounded-full p-1 shadow-2xl overflow-hidden">
         {["TOP", "BOTTOM"].map((text) => {
           const p = text as Position;
           return (
