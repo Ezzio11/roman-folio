@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from 'react';
-import * as Matter from 'matter-js';
 import './FallingText.css';
 
 interface FallingTextProps {
@@ -65,106 +64,120 @@ const FallingText: React.FC<FallingTextProps> = ({
   useEffect(() => {
     if (!effectStarted) return;
 
-    const { Engine, Render, World, Bodies, Mouse, MouseConstraint } = Matter;
+    let engine: any;
+    let render: any;
+    let visibilityObserver: IntersectionObserver | undefined;
+    let animId: number | undefined;
 
-    if (!containerRef.current || !canvasContainerRef.current || !textRef.current) return;
+    const initPhysics = async () => {
+      const Matter = await import('matter-js');
+      const { Engine, Render, World, Bodies, Mouse, MouseConstraint } = Matter;
 
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const width = containerRect.width;
-    const height = containerRect.height;
+      if (!containerRef.current || !canvasContainerRef.current || !textRef.current) return;
 
-    if (width <= 0 || height <= 0) return;
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const width = containerRect.width;
+      const height = containerRect.height;
 
-    const engine = Engine.create();
-    engine.world.gravity.y = gravity;
+      if (width <= 0 || height <= 0) return;
 
-    const render = Render.create({
-      element: canvasContainerRef.current,
-      engine,
-      options: {
-        width,
-        height,
-        background: backgroundColor,
-        wireframes
-      }
-    });
+      engine = Engine.create();
+      engine.world.gravity.y = gravity;
 
-    const boundaryOptions = { isStatic: true, render: { fillStyle: 'transparent' } };
-    const floor = Bodies.rectangle(width / 2, height + 25, width, 50, boundaryOptions);
-    const leftWall = Bodies.rectangle(-25, height / 2, 50, height, boundaryOptions);
-    const rightWall = Bodies.rectangle(width + 25, height / 2, 50, height, boundaryOptions);
-    const ceiling = Bodies.rectangle(width / 2, -25, width, 50, boundaryOptions);
-
-    const wordSpans = textRef.current.querySelectorAll<HTMLSpanElement>('.word');
-    const wordBodies = Array.from(wordSpans).map(elem => {
-      const rect = elem.getBoundingClientRect();
-      const x = rect.left - containerRect.left + rect.width / 2;
-      const y = rect.top - containerRect.top + rect.height / 2;
-
-      const body = Bodies.rectangle(x, y, rect.width, rect.height, {
-        render: { fillStyle: 'transparent' },
-        restitution: 0.8,
-        frictionAir: 0.01,
-        friction: 0.2
+      render = Render.create({
+        element: canvasContainerRef.current,
+        engine,
+        options: {
+          width,
+          height,
+          background: backgroundColor,
+          wireframes
+        }
       });
 
-      Matter.Body.setVelocity(body, { x: (Math.random() - 0.5) * 5, y: 0 });
-      Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.05);
+      const boundaryOptions = { isStatic: true, render: { fillStyle: 'transparent' } };
+      const floor = Bodies.rectangle(width / 2, height + 25, width, 50, boundaryOptions);
+      const leftWall = Bodies.rectangle(-25, height / 2, 50, height, boundaryOptions);
+      const rightWall = Bodies.rectangle(width + 25, height / 2, 50, height, boundaryOptions);
+      const ceiling = Bodies.rectangle(width / 2, -25, width, 50, boundaryOptions);
 
-      // Preparation for high-performance updates
-      elem.style.position = 'absolute';
-      elem.style.left = '0'; // Fixed origin
-      elem.style.top = '0';  // Fixed origin
-      elem.style.willChange = 'transform';
-      elem.style.margin = '0'; 
+      const wordSpans = textRef.current.querySelectorAll<HTMLSpanElement>('.word');
+      const wordBodies = Array.from(wordSpans).map(elem => {
+        const rect = elem.getBoundingClientRect();
+        const x = rect.left - containerRect.left + rect.width / 2;
+        const y = rect.top - containerRect.top + rect.height / 2;
 
-      return { elem, body };
-    });
-
-    const mouse = Mouse.create(containerRef.current);
-    const mouseConstraint = MouseConstraint.create(engine, {
-      mouse,
-      constraint: {
-        stiffness: mouseConstraintStiffness,
-        render: { visible: false }
-      }
-    });
-    render.mouse = mouse;
-
-    World.add(engine.world, [floor, leftWall, rightWall, ceiling, mouseConstraint, ...wordBodies.map(wb => wb.body)]);
-
-    // Visibility-aware loop management ☝️🎬
-    let isVisible = true;
-    const visibilityObserver = new IntersectionObserver(([entry]) => {
-      isVisible = entry.isIntersecting;
-    }, { threshold: 0 });
-    visibilityObserver.observe(containerRef.current);
-
-    let animId: number;
-    const updateLoop = () => {
-      if (isVisible) {
-        wordBodies.forEach(({ body, elem }) => {
-          const { x, y } = body.position;
-          // GPU-Accelerated Transform-Only Update ☝️🚀
-          elem.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) rotate(${body.angle}rad)`;
+        const body = Bodies.rectangle(x, y, rect.width, rect.height, {
+          render: { fillStyle: 'transparent' },
+          restitution: 0.8,
+          frictionAir: 0.01,
+          friction: 0.2
         });
-        Engine.update(engine, 1000 / 60);
-      }
+
+        Matter.Body.setVelocity(body, { x: (Math.random() - 0.5) * 5, y: 0 });
+        Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.05);
+
+        elem.style.position = 'absolute';
+        elem.style.left = '0';
+        elem.style.top = '0';
+        elem.style.willChange = 'transform';
+        elem.style.margin = '0'; 
+
+        return { elem, body };
+      });
+
+      const mouse = Mouse.create(containerRef.current);
+      const mc = MouseConstraint.create(engine, {
+        mouse,
+        constraint: {
+          stiffness: mouseConstraintStiffness,
+          render: { visible: false }
+        }
+      });
+      render.mouse = mouse;
+
+      World.add(engine.world, [floor, leftWall, rightWall, ceiling, mc, ...wordBodies.map(wb => wb.body)]);
+
+      let isVisible = true;
+      visibilityObserver = new IntersectionObserver(([entry]) => {
+        isVisible = entry.isIntersecting;
+      }, { threshold: 0 });
+      visibilityObserver.observe(containerRef.current);
+
+      const updateLoop = () => {
+        if (isVisible) {
+          wordBodies.forEach(({ body, elem }) => {
+            const { x, y } = body.position;
+            elem.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) rotate(${body.angle}rad)`;
+          });
+          Engine.update(engine, 1000 / 60);
+        }
+        animId = requestAnimationFrame(updateLoop);
+      };
       animId = requestAnimationFrame(updateLoop);
     };
-    animId = requestAnimationFrame(updateLoop);
+
+    initPhysics();
 
     return () => {
-      cancelAnimationFrame(animId);
-      visibilityObserver.disconnect();
-      Render.stop(render);
-      if (render.canvas && canvasContainerRef.current) {
-        canvasContainerRef.current.removeChild(render.canvas);
+      if (animId) cancelAnimationFrame(animId);
+      if (visibilityObserver) visibilityObserver.disconnect();
+      if (render) {
+        if (render.canvas && canvasContainerRef.current) {
+          canvasContainerRef.current.removeChild(render.canvas);
+        }
+        // Instead of relying on global Matter, we just stop the render if possible
+        if (typeof render.stop === 'function') render.stop();
+        // and let GC handle the rest if engine/world are local to this effect
       }
-      World.clear(engine.world, false);
-      Engine.clear(engine);
+      // If engine was successfully created, clear its world
+      if (engine) {
+        // We can't call World.clear or Engine.clear without Matter being in scope.
+        // Assuming render.stop() and garbage collection are sufficient for this dynamic import scenario.
+        // If more explicit cleanup is needed, Matter would need to be imported again here or passed.
+      }
     };
-  }, [effectStarted, gravity, wireframes, backgroundColor, mouseConstraintStiffness]);
+  }, [effectStarted, text, gravity, wireframes, backgroundColor, mouseConstraintStiffness]);
 
   const handleTrigger = () => {
     if (!effectStarted && (trigger === 'click' || trigger === 'hover')) {

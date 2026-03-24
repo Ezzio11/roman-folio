@@ -116,13 +116,26 @@ function NoisePlane(props: NoiseBackgroundProps & { isVisible: boolean }) {
   const meshRef = useRef<Mesh>(null);
   const { isVisible } = props;
 
-  const uniforms = useMemo(
-    () => ({
+  // Use a ref to store the THREE instances once loaded
+  const threeRef = useRef<any>(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+  useEffect(() => {
+    import('three').then(mod => {
+      threeRef.current = mod;
+      setIsLoaded(true);
+    });
+  }, []);
+
+  const uniforms = useMemo(() => {
+    if (!isLoaded || !threeRef.current) return {};
+    const THREE = threeRef.current;
+    return {
       uTime: { value: 0 },
-      uMouse: { value: new Vector2(0, 0) },
-      uResolution: { value: new Vector2(size.width, size.height) },
-      uColorA: { value: new Color(props.colorA || "#000000") },
-      uColorB: { value: new Color(props.colorB || "#ff0000") },
+      uMouse: { value: new THREE.Vector2(0, 0) },
+      uResolution: { value: new THREE.Vector2(size.width, size.height) },
+      uColorA: { value: new THREE.Color(props.colorA || "#000000") },
+      uColorB: { value: new THREE.Color(props.colorB || "#ff0000") },
       uScale: { value: props.noiseScale ?? 100 },
       uAmplitude: { value: props.amplitude ?? 83 },
       uSkew: { value: props.skew ?? 50 },
@@ -131,12 +144,11 @@ function NoisePlane(props: NoiseBackgroundProps & { isVisible: boolean }) {
       uBulgeAmount: { value: props.bulgeAmount ?? 53 },
       uBulgeScale: { value: props.bulgeScale ?? 0.5 },
       uTrackMouse: { value: props.trackMouse ?? 10 },
-    }),
-    [props, size]
-  );
+    };
+  }, [props, size, isLoaded]);
 
   const timeRef = useRef(0);
-  const mousePos = useRef(new Vector2(0, 0));
+  const mousePos = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -149,16 +161,21 @@ function NoisePlane(props: NoiseBackgroundProps & { isVisible: boolean }) {
   }, []);
 
   useFrame((state, delta) => {
-    if (!isVisible) return; // Pause if off-screen ☝️🎬
+    if (!isVisible || !isLoaded || !meshRef.current) return; // Pause if off-screen ☝️🎬
     
-    if (meshRef.current) {
-      const material = meshRef.current.material as ShaderMaterial;
-      timeRef.current += delta;
-      material.uniforms.uTime.value = timeRef.current;
-      material.uniforms.uMouse.value.lerp(mousePos.current, 0.1);
-      material.uniforms.uResolution.value.set(size.width, size.height);
+    const material = meshRef.current.material as ShaderMaterial;
+    timeRef.current += delta;
+    material.uniforms.uTime.value = timeRef.current;
+    
+    if (threeRef.current && material.uniforms.uMouse.value) {
+      const THREE = threeRef.current;
+      material.uniforms.uMouse.value.x = THREE.MathUtils.lerp(material.uniforms.uMouse.value.x, mousePos.current.x, 0.1);
+      material.uniforms.uMouse.value.y = THREE.MathUtils.lerp(material.uniforms.uMouse.value.y, mousePos.current.y, 0.1);
     }
+    material.uniforms.uResolution.value.set(size.width, size.height);
   });
+
+  if (!isLoaded) return null;
 
   return (
     <mesh ref={meshRef}>
@@ -166,7 +183,7 @@ function NoisePlane(props: NoiseBackgroundProps & { isVisible: boolean }) {
       <shaderMaterial
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
-        uniforms={uniforms}
+        uniforms={uniforms as any}
         transparent
       />
     </mesh>

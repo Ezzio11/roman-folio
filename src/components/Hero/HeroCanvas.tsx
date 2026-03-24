@@ -1,28 +1,31 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { WebGLRenderer, Scene, PerspectiveCamera, ShaderMaterial, TextureLoader, PlaneGeometry, Vector2, Mesh } from "three";
 import { vertexShader, baseFragmentShader } from "./shaders";
 
 export default function HeroCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mouseRef = useRef(new Vector2(0, 0));
+  const mouseRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    let renderer: WebGLRenderer;
-    let camera: PerspectiveCamera;
+    let renderer: any;
+    let camera: any;
     let animId: number;
     let observer: IntersectionObserver;
 
-    const init = () => {
+    const init = async () => {
       if (!container) return;
+      
+      const THREE = await import('three');
+      const { WebGLRenderer, Scene, PerspectiveCamera, ShaderMaterial, TextureLoader, PlaneGeometry, Mesh } = THREE;
+
       console.time("HeroCanvas-Init");
 
       renderer = new WebGLRenderer({ antialias: false, alpha: true, powerPreference: "high-performance" });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2)); // Lower multiplier for TBT ☝️
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2));
       renderer.setSize(window.innerWidth, window.innerHeight);
       container.appendChild(renderer.domElement);
 
@@ -31,7 +34,6 @@ export default function HeroCanvas() {
       camera.position.z = 5;
 
       const loader = new TextureLoader();
-// ... rest of init
       const tribalTex = loader.load("/images/tribal_chief.webp");
       const depthTex = loader.load("/images/roman_depth.webp");
 
@@ -84,17 +86,18 @@ export default function HeroCanvas() {
 
     window.addEventListener("pointermove", handlePointerMove);
 
-    // Defer initialization slightly to avoid hydration overlap, but early enough for LCP ☝️🚀
     const timer = setTimeout(() => {
       if (typeof window.requestIdleCallback === "function") {
-        window.requestIdleCallback(() => init());
+        window.requestIdleCallback(() => {
+          init().catch(console.error);
+        });
       } else {
-        init();
+        init().catch(console.error);
       }
-    }, 100); // Reduced from 1500ms for LCP
+    }, 100);
 
     const handleResize = () => {
-      if (!renderer) return;
+      if (!renderer || !camera) return;
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);

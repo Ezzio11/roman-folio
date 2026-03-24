@@ -1,6 +1,6 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { InstancedMesh, Object3D } from 'three';
+import type { InstancedMesh } from 'three';
 
 interface AntigravityProps {
   count?: number;
@@ -42,7 +42,16 @@ const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
 }) => {
   const meshRef = useRef<InstancedMesh>(null);
   const { viewport } = useThree();
-  const dummy = useMemo(() => new Object3D(), []);
+  
+  const [THREE, setTHREE] = useState<any>(null);
+  useEffect(() => {
+    import('three').then(setTHREE);
+  }, []);
+
+  const dummy = useMemo(() => {
+    if (!THREE) return null;
+    return new THREE.Object3D();
+  }, [THREE]);
 
   const lastMousePos = useRef({ x: 0, y: 0 });
   const lastMouseMoveTime = useRef(0);
@@ -86,7 +95,7 @@ const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
   const frameInterval = 1 / 45; // 45 FPS target ☝️🚀
 
   useFrame((state, delta) => {
-    if (!isVisible) return; // Pause if off-screen ☝️🎬
+    if (!isVisible || !THREE || !dummy) return; // Pause if off-screen or loading ☝️🎬
 
     // Throttle to 45fps to save CPU/TBT on all devices ☝️🚀
     lastFrameTime.current += delta;
@@ -176,6 +185,8 @@ const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
 
     mesh.instanceMatrix.needsUpdate = true;
   });
+
+  if (!THREE || !dummy) return null;
 
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>

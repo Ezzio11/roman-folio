@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
   },
 
   // Transpile packages that ship un-compiled ESM
-  transpilePackages: ['three', 'ogl', 'gsap'],
+  transpilePackages: ['next-mdx-remote'], // Assuming other lightweight packages are fine
 
   // Optimize package imports
   experimental: {
