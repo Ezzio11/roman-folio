@@ -4,7 +4,7 @@ import Stats from "@/components/Resume/Stats";
 import DecryptedText from "@/components/Animations/DecryptedText"
 import Magnet from "@/components/Animations/Magnet";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import HeroCanvas from "@/components/Hero/HeroCanvas";
 import NoiseBackground from "@/components/Animations/NoiseBackground";
 
@@ -23,10 +23,23 @@ export default function Hero() {
   const smoothMouseX = useSpring(mouseX, springConfig);
   const smoothMouseY = useSpring(mouseY, springConfig);
 
+  const rectRef = useRef<DOMRect | null>(null);
+
+  useEffect(() => {
+    const updateRect = () => {
+      if (containerRef.current) {
+        rectRef.current = containerRef.current.getBoundingClientRect();
+      }
+    };
+    updateRect();
+    window.addEventListener("resize", updateRect);
+    return () => window.removeEventListener("resize", updateRect);
+  }, []);
+
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!containerRef.current) return;
+    if (!rectRef.current) return;
     const { clientX, clientY } = e;
-    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+    const { left, top, width, height } = rectRef.current;
     mouseX.set((clientX - left) / width - 0.5);
     mouseY.set((clientY - top) / height - 0.5);
   };

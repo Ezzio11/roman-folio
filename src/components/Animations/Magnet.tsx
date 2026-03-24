@@ -17,10 +17,15 @@ export default function Magnet({ children, strength = 0.5 }: MagnetProps) {
   const mouseX = useSpring(x, springConfig);
   const mouseY = useSpring(y, springConfig);
 
+  const rectRef = useRef<DOMRect | null>(null);
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!ref.current) return;
+    if (!rectRef.current) {
+      rectRef.current = ref.current.getBoundingClientRect();
+    }
     const { clientX, clientY } = e;
-    const { left, top, width, height } = ref.current.getBoundingClientRect();
+    const { left, top, width, height } = rectRef.current;
     const centerX = left + width / 2;
     const centerY = top + height / 2;
     
@@ -32,6 +37,7 @@ export default function Magnet({ children, strength = 0.5 }: MagnetProps) {
   };
 
   const handleMouseLeave = () => {
+    rectRef.current = null; // Clear cache for next interaction
     x.set(0);
     y.set(0);
   };

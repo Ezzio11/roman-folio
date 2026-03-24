@@ -140,8 +140,6 @@ const FallingText: React.FC<FallingTextProps> = ({
     }, { threshold: 0 });
     visibilityObserver.observe(containerRef.current);
 
-    Render.run(render);
-
     let animId: number;
     const updateLoop = () => {
       if (isVisible) {
