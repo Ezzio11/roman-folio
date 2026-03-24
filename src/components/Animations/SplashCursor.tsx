@@ -847,9 +847,19 @@ export default function SplashCursor({
 
     let lastInputTime = Date.now();
 
+    let isSectionVisible = true;
+    const observer = new IntersectionObserver(([entry]) => {
+      isSectionVisible = entry.isIntersecting;
+    }, { threshold: 0 });
+
+    if (canvasRef.current?.parentElement) {
+      observer.observe(canvasRef.current.parentElement);
+    }
+
+    let rafId: number;
     function updateFrame() {
-      if (document.hidden) {
-        requestAnimationFrame(updateFrame);
+      if (document.hidden || !isSectionVisible) {
+        rafId = rafId = requestAnimationFrame(updateFrame);
         return;
       }
 
@@ -866,7 +876,7 @@ export default function SplashCursor({
       // Idle Timeout: ☝️💤
       // If no input for 10 seconds, pause the simulation to save CPU/GPU.
       if (now - lastInputTime > 10000) {
-        requestAnimationFrame(updateFrame);
+        rafId = requestAnimationFrame(updateFrame);
         return;
       }
 
@@ -876,7 +886,7 @@ export default function SplashCursor({
       applyInputs();
       step(dt);
       render(null);
-      requestAnimationFrame(updateFrame);
+      rafId = requestAnimationFrame(updateFrame);
     }
 
     function calcDeltaTime() {
@@ -1163,34 +1173,22 @@ export default function SplashCursor({
 
     const pendingMove = { x: 0, y: 0, changed: false };
 
-    window.addEventListener('mousedown', e => {
+    const handleMouseDown = (e: MouseEvent) => {
       lastInputTime = Date.now();
       const pointer = pointers[0];
       const posX = scaleByPixelRatio(e.clientX);
       const posY = scaleByPixelRatio(e.clientY);
       updatePointerDownData(pointer, -1, posX, posY);
       clickSplat(pointer);
-    });
+    };
 
-    function handleFirstMouseMove(e: MouseEvent) {
-      lastInputTime = Date.now();
-      const pointer = pointers[0];
-      const posX = scaleByPixelRatio(e.clientX);
-      const posY = scaleByPixelRatio(e.clientY);
-      const color = generateColor();
-      updateFrame();
-      updatePointerMoveData(pointer, posX, posY, color);
-      document.body.removeEventListener('mousemove', handleFirstMouseMove);
-    }
-    document.body.addEventListener('mousemove', handleFirstMouseMove);
-
-    window.addEventListener('mousemove', e => {
+    const handleMouseMove = (e: MouseEvent) => {
       pendingMove.x = e.clientX;
       pendingMove.y = e.clientY;
       pendingMove.changed = true;
-    }, { passive: true });
+    };
 
-    window.addEventListener('touchstart', e => {
+    const handleTouchStart = (e: TouchEvent) => {
       lastInputTime = Date.now();
       const touches = e.targetTouches;
       const pointer = pointers[0];
@@ -1199,24 +1197,42 @@ export default function SplashCursor({
         const posY = scaleByPixelRatio(touches[i].clientY);
         updatePointerDownData(pointer, touches[i].identifier, posX, posY);
       }
-    }, { passive: true });
+    };
 
-    window.addEventListener('touchmove', e => {
+    const handleTouchMove = (e: TouchEvent) => {
       const touches = e.targetTouches;
       if (touches.length > 0) {
         pendingMove.x = touches[0].clientX;
         pendingMove.y = touches[0].clientY;
         pendingMove.changed = true;
       }
-    }, { passive: true });
+    };
 
-    window.addEventListener('touchend', e => {
+    const handleTouchEnd = (e: TouchEvent) => {
       const touches = e.changedTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
         updatePointerUpData(pointer);
       }
-    });
+    };
+
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd);
+
+    updateFrame();
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      observer.disconnect();
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
   }, [
     SIM_RESOLUTION,
     DYE_RESOLUTION,
