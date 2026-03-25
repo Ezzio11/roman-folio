@@ -2,8 +2,10 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 import Hero from "@/components/Hero";
-import Header from "@/components/Resume/Header";
-import Objective from "@/components/Resume/Objective";
+// Critical static components that don't depend on heavy WebGL/Client logic
+const Header = dynamic(() => import("@/components/Resume/Header"), { ssr: false });
+const Objective = dynamic(() => import("@/components/Resume/Objective"), { ssr: false });
+
 
 // Below-the-fold components are loaded dynamically
 const Experience = dynamic(() => import("@/components/Resume/Experience"), { ssr: false });

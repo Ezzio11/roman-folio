@@ -113,7 +113,9 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'transpar
                             sizes="(max-width: 768px) 100vw, 300px"
                             className="object-cover grayscale contrast-[1.2] transition-transform duration-500 group-hover:scale-110"
                             loading="lazy"
+                            unoptimized // Bypass expensive optimization for repeating grid assets ☝️🚀
                           />
+
                         </div>
                       ) : (
                         <div className="row__item-content">{content}</div>

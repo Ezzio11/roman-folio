@@ -1,16 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  reactCompiler: true,
+  // reactCompiler: true, // Removed as per request ☝️🚀
+
   
   // Compress responses
   compress: true,
 
   // Image optimization
   images: {
-    formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    formats: ['image/webp'],
+    deviceSizes: [640, 828, 1200, 1920, 2048],
     minimumCacheTTL: 60 * 60 * 24 * 365, // 1 year
+
   },
 
   // Transpile packages that ship un-compiled ESM
