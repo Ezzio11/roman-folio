@@ -845,39 +845,20 @@ export default function SplashCursor({
     let lastUpdateTime = Date.now();
     let colorUpdateTimer = 0.0;
 
-    let lastInputTime = Date.now();
-
-    let isSectionVisible = true;
-    const observer = new IntersectionObserver(([entry]) => {
-      isSectionVisible = entry.isIntersecting;
-    }, { threshold: 0 });
-
-    if (canvasRef.current?.parentElement) {
-      observer.observe(canvasRef.current.parentElement);
-    }
-
-    let rafId: number;
+    let rafId: number | null = null;
     function updateFrame() {
-      if (document.hidden || !isSectionVisible) {
-        rafId = rafId = requestAnimationFrame(updateFrame);
+      if (document.hidden) {
+        rafId = requestAnimationFrame(updateFrame);
         return;
       }
 
-      const now = Date.now();
+
       if (pendingMove.changed) {
-        lastInputTime = now;
         const pointer = pointers[0];
         const posX = scaleByPixelRatio(pendingMove.x);
         const posY = scaleByPixelRatio(pendingMove.y);
         updatePointerMoveData(pointer, posX, posY, pointer.color);
         pendingMove.changed = false;
-      }
-
-      // Idle Timeout: ☝️💤
-      // If no input for 10 seconds, pause the simulation to save CPU/GPU.
-      if (now - lastInputTime > 10000) {
-        rafId = requestAnimationFrame(updateFrame);
-        return;
       }
 
       const dt = calcDeltaTime();
@@ -1174,7 +1155,6 @@ export default function SplashCursor({
     const pendingMove = { x: 0, y: 0, changed: false };
 
     const handleMouseDown = (e: MouseEvent) => {
-      lastInputTime = Date.now();
       const pointer = pointers[0];
       const posX = scaleByPixelRatio(e.clientX);
       const posY = scaleByPixelRatio(e.clientY);
@@ -1189,7 +1169,6 @@ export default function SplashCursor({
     };
 
     const handleTouchStart = (e: TouchEvent) => {
-      lastInputTime = Date.now();
       const touches = e.targetTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
@@ -1225,8 +1204,7 @@ export default function SplashCursor({
     updateFrame();
 
     return () => {
-      cancelAnimationFrame(rafId);
-      observer.disconnect();
+      if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchstart', handleTouchStart);

@@ -1,10 +1,9 @@
 "use client";
 
 import Stats from "@/components/Resume/Stats";
-import DecryptedText from "@/components/Animations/DecryptedText"
 import Magnet from "@/components/Animations/Magnet";
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
-import { useRef, useEffect } from "react";
+import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
+import { useRef, useEffect, useState } from "react";
 import dynamic from 'next/dynamic';
 const HeroCanvas = dynamic(() => import("@/components/Hero/HeroCanvas"), { ssr: false });
 const NoiseBackground = dynamic(() => import("@/components/Animations/NoiseBackground"), { ssr: false });
@@ -15,6 +14,21 @@ export default function Hero() {
     target: containerRef,
     offset: ["start start", "end start"]
   });
+  
+  const [currentTitleIndex, setCurrentTitleIndex] = useState(0);
+  const titles = [
+    "The Tribal Chief",
+    "The Needle Mover",
+    "The Head of the Table",
+    "The Only Tribal Chief"
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTitleIndex((prev) => (prev + 1) % titles.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [titles.length]);
 
   // Kinetic Typography Logic ☝️🎬✨
   const mouseX = useMotionValue(0);
@@ -31,7 +45,7 @@ export default function Hero() {
 
     // Performance: Use ResizeObserver instead of getBoundingClientRect in a resize listener ☝️🎬
     const observer = new ResizeObserver((entries) => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         rectRef.current = entry.target.getBoundingClientRect();
       }
     });
@@ -69,36 +83,40 @@ export default function Hero() {
   const translateZ = useTransform(scrollYProgress, [0, 1], [0, -300]);
 
   return (
-    <section
+    <motion.section
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{ position: "relative" }}
-      className="relative w-full h-[200vh] overflow-visible bg-black perspective-[1500px]"
+      className="relative w-full h-[200vh] overflow-visible bg-black perspective-[1500px] z-10"
+      style={{ position: 'relative' }} // Explicitly set for Framer Motion measurement ☝️🎬
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* 3D Background - FIXED (No expensive 3D transforms here) ☝️🎬 */}
-        <div className="absolute inset-0 z-0 text-white">
-          <NoiseBackground
-            colorA="#000000"
-            colorB="#ff0000"
-            noiseScale={100}
-            amplitude={83}
-            skew={50}
-            phase={35}
-            threshold={50}
-            bulgeAmount={53}
-            bulgeScale={0.5}
-            trackMouse={10}
-          />
-          <HeroCanvas />
-        </div>
-
-        {/* Interactive UI & Branding - 3D Transformed ☝️🎬🧨 */}
         <motion.div
           style={{ rotateX, scale, opacity, translateZ, transformStyle: "preserve-3d" }}
           className="relative z-10 w-full h-full flex flex-col justify-between"
         >
+          {/* 3D Background - FIXED (No expensive 3D transforms here) ☝️🎬 */}
+          <div className="absolute inset-0 z-0 text-white" style={{ 
+            willChange: 'transform',
+            width: '110%',
+            height: '110%',
+            top: '-5%',
+            left: '-5%'
+          }}>
+            <NoiseBackground
+              colorA="#000000"
+              colorB="#ff0000"
+              noiseScale={100}
+              amplitude={83}
+              skew={50}
+              phase={35}
+              threshold={50}
+              bulgeAmount={53}
+              bulgeScale={0.5}
+              trackMouse={10}
+            />
+            <HeroCanvas />
+          </div>
 
           {/* Main Branding - Left Aligned & Vertical Approach */}
           <div className="relative z-20 flex-1 flex flex-col justify-center px-8 md:px-16 pointer-events-none">
@@ -133,9 +151,20 @@ export default function Hero() {
                 className="flex items-center gap-6"
               >
                 <div className="h-0.5 w-12 bg-[--accent]" />
-                <p className="text-xl md:text-2xl font-subheading uppercase text-white">
-                  <DecryptedText text="THE TRIBAL CHIEF" speed={100} delay={1000} />
-                </p>
+                <div className="h-8 md:h-10 overflow-hidden relative">
+                   <AnimatePresence mode="wait">
+                    <motion.p
+                      key={currentTitleIndex}
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -20, opacity: 0 }}
+                      transition={{ duration: 0.5, ease: "circOut" }}
+                      className="text-xl md:text-2xl font-subheading uppercase text-white whitespace-nowrap"
+                    >
+                      {titles[currentTitleIndex]}
+                    </motion.p>
+                  </AnimatePresence>
+                </div>
               </motion.div>
             </div>
           </div>
@@ -179,6 +208,6 @@ export default function Hero() {
           </div>
         </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }

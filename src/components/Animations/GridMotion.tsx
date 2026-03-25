@@ -10,7 +10,7 @@ interface GridMotionProps {
   gradientColor?: string;
 }
 
-const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }) => {
+const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'transparent' }) => {
   const gridRef = useRef<HTMLDivElement>(null);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isHoveredRef = useRef<boolean>(false);
@@ -24,13 +24,6 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
   useEffect(() => {
     gsap.ticker.lagSmoothing(0);
 
-    let isVisible = true;
-    const observer = new IntersectionObserver(([entry]) => {
-      isVisible = entry.isIntersecting;
-    }, { threshold: 0 });
-
-    if (gridRef.current) observer.observe(gridRef.current);
-
     const updateRowWidths = () => {
       rowRefs.current.forEach((row, index) => {
         if (row) rowWidthsRef.current[index] = row.scrollWidth;
@@ -38,7 +31,6 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
     };
 
     const updateMotion = (): void => {
-      if (!isVisible) return;
       const speed = isHoveredRef.current ? 0.3 : 1.2; 
 
       rowRefs.current.forEach((row, index) => {
@@ -81,7 +73,6 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
     }
 
     return () => {
-      observer.disconnect();
       window.removeEventListener('resize', updateRowWidths);
       if (grid) {
         grid.removeEventListener('mouseenter', handleMouseEnter);
@@ -112,7 +103,7 @@ const GridMotion: FC<GridMotionProps> = ({ items = [], gradientColor = 'black' }
                 ...combinedItems.slice(rowIndex * 7, (rowIndex + 1) * 7)].map((content, itemIndex) => {
                 return (
                   <div key={itemIndex} className="row__item">
-                    <div className="row__item-inner" style={{ backgroundColor: '#111' }}>
+                    <div className="row__item-inner" style={{ backgroundColor: 'transparent' }}>
                       {typeof content === 'string' && (content.startsWith('http') || content.startsWith('/') || content.includes('.jpg') || content.includes('.png')) ? (
                         <div className="row__item-img relative w-full h-full overflow-hidden">
                           <Image

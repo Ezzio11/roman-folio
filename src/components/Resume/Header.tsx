@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import DecryptedText from "@/components/Animations/DecryptedText";
 import Image from "next/image";
 import { FaInstagram, FaTwitter, FaTiktok, FaFacebook } from "react-icons/fa";
@@ -14,54 +14,60 @@ export default function Header() {
     offset: ["start start", "end end"]
   });
 
+  // Use a spring to smooth out scroll jitter ☝️🚀
+  const smoothProgress = useSpring(scrollYProgress, {
+    damping: 50,
+    stiffness: 400,
+    restDelta: 0.001
+  });
+
   // --- TRANSFORMS (UNBOXED LTR) ☝️🎬🧨 ---
-  // The Spear cuts from the VERY edge of the screen
-  const spearX = useTransform(scrollYProgress, [0.05, 0.95], ["-120vw", "120vw"]);
+  const spearX = useTransform(smoothProgress, [0.05, 0.95], ["-120vw", "120vw"]);
 
   // 1. Text Shattering - Title ("ROMAN REIGNS")
-  const romanX = useTransform(scrollYProgress, [0.4, 0.6], ["0%", "150%"]);
-  const romanY = useTransform(scrollYProgress, [0.4, 0.6], ["0%", "-150%"]);
-  const romanRotate = useTransform(scrollYProgress, [0.4, 0.6], [0, 45]);
-  const romanOpacity = useTransform(scrollYProgress, [0.4, 0.52], [1, 0]);
+  const romanX = useTransform(smoothProgress, [0.4, 0.6], ["0%", "150%"]);
+  const romanY = useTransform(smoothProgress, [0.4, 0.6], ["0%", "-150%"]);
+  const romanRotate = useTransform(smoothProgress, [0.4, 0.6], [0, 45]);
+  const romanOpacity = useTransform(smoothProgress, [0.4, 0.52], [1, 0]);
 
-  const reignsX = useTransform(scrollYProgress, [0.42, 0.62], ["0%", "-100%"]);
-  const reignsY = useTransform(scrollYProgress, [0.42, 0.62], ["0%", "50%"]);
-  const reignsRotate = useTransform(scrollYProgress, [0.42, 0.62], [0, -90]);
-  const reignsOpacity = useTransform(scrollYProgress, [0.42, 0.58], [1, 0]);
+  const reignsX = useTransform(smoothProgress, [0.42, 0.62], ["0%", "-100%"]);
+  const reignsY = useTransform(smoothProgress, [0.42, 0.62], ["0%", "50%"]);
+  const reignsRotate = useTransform(smoothProgress, [0.42, 0.62], [0, -90]);
+  const reignsOpacity = useTransform(smoothProgress, [0.42, 0.58], [1, 0]);
 
   // 2. Beyond Name - Shattering everything else 🧨
-  const metaY = useTransform(scrollYProgress, [0.38, 0.58], ["0%", "-200%"]);
-  const metaRotate = useTransform(scrollYProgress, [0.38, 0.58], [0, -30]);
-  const metaOpacity = useTransform(scrollYProgress, [0.38, 0.52], [1, 0]);
+  const metaY = useTransform(smoothProgress, [0.38, 0.58], ["0%", "-200%"]);
+  const metaRotate = useTransform(smoothProgress, [0.38, 0.58], [0, -30]);
+  const metaOpacity = useTransform(smoothProgress, [0.38, 0.52], [1, 0]);
 
-  const descX = useTransform(scrollYProgress, [0.44, 0.64], ["0%", "-200%"]);
-  const descY = useTransform(scrollYProgress, [0.44, 0.64], ["0%", "100%"]);
-  const descRotate = useTransform(scrollYProgress, [0.44, 0.64], [0, -15]);
-  const descOpacity = useTransform(scrollYProgress, [0.44, 0.56], [1, 0]);
+  const descX = useTransform(smoothProgress, [0.44, 0.64], ["0%", "-200%"]);
+  const descY = useTransform(smoothProgress, [0.44, 0.64], ["0%", "100%"]);
+  const descRotate = useTransform(smoothProgress, [0.44, 0.64], [0, -15]);
+  const descOpacity = useTransform(smoothProgress, [0.44, 0.56], [1, 0]);
 
-  const bioX = useTransform(scrollYProgress, [0.46, 0.66], ["0%", "200%"]);
-  const bioY = useTransform(scrollYProgress, [0.46, 0.66], ["0%", "-50%"]);
-  const bioRotate = useTransform(scrollYProgress, [0.46, 0.66], [0, 60]);
-  const bioOpacity = useTransform(scrollYProgress, [0.46, 0.54], [1, 0]);
+  const bioX = useTransform(smoothProgress, [0.46, 0.66], ["0%", "200%"]);
+  const bioY = useTransform(smoothProgress, [0.46, 0.66], ["0%", "-50%"]);
+  const bioRotate = useTransform(smoothProgress, [0.46, 0.66], [0, 60]);
+  const bioOpacity = useTransform(smoothProgress, [0.46, 0.54], [1, 0]);
 
-  const emailX = useTransform(scrollYProgress, [0.48, 0.68], ["0%", "150%"]);
-  const emailY = useTransform(scrollYProgress, [0.48, 0.68], ["0%", "200%"]);
-  const emailRotate = useTransform(scrollYProgress, [0.48, 0.68], [0, 120]);
-  const emailOpacity = useTransform(scrollYProgress, [0.48, 0.52], [1, 0]);
+  const emailX = useTransform(smoothProgress, [0.48, 0.68], ["0%", "150%"]);
+  const emailY = useTransform(smoothProgress, [0.48, 0.68], ["0%", "200%"]);
+  const emailRotate = useTransform(smoothProgress, [0.48, 0.68], [0, 120]);
+  const emailOpacity = useTransform(smoothProgress, [0.48, 0.52], [1, 0]);
 
-  const socialX = useTransform(scrollYProgress, [0.47, 0.67], ["0%", "-150%"]);
-  const socialY = useTransform(scrollYProgress, [0.47, 0.67], ["0%", "180%"]);
-  const socialRotate = useTransform(scrollYProgress, [0.47, 0.67], [0, -80]);
-  const socialOpacity = useTransform(scrollYProgress, [0.47, 0.53], [1, 0]);
+  const socialX = useTransform(smoothProgress, [0.47, 0.67], ["0%", "-150%"]);
+  const socialY = useTransform(smoothProgress, [0.47, 0.67], ["0%", "180%"]);
+  const socialRotate = useTransform(smoothProgress, [0.47, 0.67], [0, -80]);
+  const socialOpacity = useTransform(smoothProgress, [0.47, 0.53], [1, 0]);
 
   // Flash Effect 🧨
-  const impactFlash = useTransform(scrollYProgress, [0.45, 0.5, 0.55], [0, 0.9, 0]);
+  const impactFlash = useTransform(smoothProgress, [0.45, 0.5, 0.55], [0, 0.9, 0]);
 
   return (
-    <div 
+    <motion.div 
       ref={containerRef} 
-      style={{ position: 'relative' }}
-      className="relative h-[400vh] bg-black border-b border-white/5 overflow-visible z-10"
+      className="relative h-[400vh] border-b border-white/5 overflow-visible z-10"
+      style={{ position: 'relative' }} // Explicitly set for Framer Motion measurement ☝️🎬
     >
 
       {/* Sticky Full-Width Container (No max-width here to allow unboxed spear) */}
@@ -193,6 +199,6 @@ export default function Header() {
           </div>
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

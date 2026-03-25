@@ -50,7 +50,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="relative overflow-hidden w-full bg-black border-t border-white/5" id="contact">
+    <div className="relative overflow-hidden w-full border-t border-white/5" id="contact">
       {/* ☝️🌌 Antigravity Red Void Background */}
       <div className="absolute inset-0 z-0 opacity-50">
         <Antigravity

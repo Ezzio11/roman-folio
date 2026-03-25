@@ -1,9 +1,9 @@
 "use client";
-
+import React from 'react';
 import dynamic from 'next/dynamic';
-const Hero = dynamic(() => import("@/components/Hero"), { ssr: false });
-const Header = dynamic(() => import("@/components/Resume/Header"), { ssr: false });
-const Objective = dynamic(() => import("@/components/Resume/Objective"), { ssr: false });
+import Hero from "@/components/Hero";
+import Header from "@/components/Resume/Header";
+import Objective from "@/components/Resume/Objective";
 
 // Below-the-fold components are loaded dynamically
 const Experience = dynamic(() => import("@/components/Resume/Experience"), { ssr: false });
@@ -16,8 +16,8 @@ const Counter1316 = dynamic(() => import("@/components/Resume/Counter1316"), { s
 const GridMotion = dynamic(() => import("@/components/Animations/GridMotion"), { ssr: false });
 const SplashCursor = dynamic(() => import("@/components/Animations/SplashCursor"), { ssr: false });
 const AcknowledgeNavigator = dynamic(() => import("@/components/Resume/AcknowledgeNavigator"), { ssr: false });
-const PerformanceMonitor = dynamic(() => import("@/components/PerformanceMonitor"), { ssr: false });
 const LazyHydrate = dynamic(() => import("@/components/LazyHydrate"), { ssr: false });
+const BloodlineTree = dynamic(() => import("@/components/Resume/BloodlineTree"), { ssr: false });
 
 const bloodlineItems = [
   "/highlights/wrestlemania_unification_2022.webp", "Spear", "/highlights/crowned_as_tribal_chief.webp", "Superman Punch", "/highlights/elimination_chamber_2018.webp", "Elimination Chamber", "/highlights/ulafala_win_again_solosikoa.webp",
@@ -28,39 +28,43 @@ const bloodlineItems = [
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen bg-[--background] text-[--foreground] transition-colors duration-500 selection:bg-[--accent] selection:text-white">
-      <PerformanceMonitor />
+    <main className="relative min-h-screen text-[--foreground] transition-colors duration-500 selection:bg-[--accent] selection:text-white overflow-x-clip">
+      <SplashCursor />
       
-      <LazyHydrate delay={1200} ssrHeight={0}>
-        <SplashCursor />
+      <React.Suspense fallback={<div className="h-screen bg-black" />}>
         <AcknowledgeNavigator />
         <Counter1316 />
-      </LazyHydrate>
+        <Hero />
+      </React.Suspense>
 
-      <Hero />
+      <div className="relative z-20">
+        <div className="relative">
+          <Header />
+          <Objective />
+          
+          <LazyHydrate ssrHeight={800}>
+             <Experience />
+          </LazyHydrate>
 
-      <div className="relative z-20 bg-[--background]">
-        <LazyHydrate delay={2000} ssrHeight="100vh">
-          <div className="relative">
-            <Header />
-            <Objective />
-            <Experience />
-
-            <section id="highlights" className="py-20 border-b border-[--border-color] relative z-10" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}>
-              <h2 className="text-xl font-black uppercase tracking-[0.2em] text-[--accent] mb-8 text-center font-subheading">
-                Career Highlights
-              </h2>
-              <div className="h-[600px] w-full">
+          <section id="highlights" className="py-20 border-b border-[--border-color] relative z-10">
+            <h2 className="text-xl font-black uppercase tracking-[0.2em] text-[--accent] mb-8 text-center font-subheading">
+              Career Highlights
+            </h2>
+            <div className="h-[600px] w-full">
+              <LazyHydrate ssrHeight={600}>
                 <GridMotion items={bloodlineItems} />
-              </div>
-            </section>
-          </div>
+              </LazyHydrate>
+            </div>
+          </section>
+        </div>
 
-          <div id="skills" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 600px' }}><Skills /></div>
-          <div id="dominance" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}><DominanceDashboard /></div>
-          <div style={{ contentVisibility: 'auto', containIntrinsicSize: '0 400px' }}><Education /></div>
-          <div style={{ contentVisibility: 'auto', containIntrinsicSize: '0 400px' }}><References /></div>
-          <div id="contact" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 600px' }}><Contact /></div>
+        <LazyHydrate ssrHeight={4000}>
+          <BloodlineTree />
+          <div id="skills"><Skills /></div>
+          <div id="dominance"><DominanceDashboard /></div>
+          <div><Education /></div>
+          <div><References /></div>
+          <div id="contact"><Contact /></div>
         </LazyHydrate>
       </div>
     </main>

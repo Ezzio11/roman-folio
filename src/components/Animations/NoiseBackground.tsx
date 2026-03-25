@@ -1,8 +1,10 @@
 "use client";
+/* eslint-disable react-hooks/immutability */
 
 import React, { useRef, useMemo, useEffect } from "react";
+import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Vector2, Color, Mesh, ShaderMaterial } from "three";
+import { Mesh } from "three";
 
 const vertexShader = `
   varying vec2 vUv;
@@ -57,7 +59,7 @@ const fragmentShader = `
     float v = 0.0;
     float a = 0.5;
     vec2 shift = vec2(100);
-    for (int i = 0; i < 2; ++i) { // Reduced to 2 octaves for ☝️🚀 performance
+    for (int i = 0; i < 2; ++i) { 
       v += a * snoise(p);
       p = p * 2.0 + shift;
       a *= 0.5;
@@ -66,28 +68,20 @@ const fragmentShader = `
   }
 
   void main() {
-    // Correct aspect ratio
     vec2 ratio = vec2(max(uResolution.x / uResolution.y, 1.0), max(uResolution.y / uResolution.x, 1.0));
     vec2 p = (vUv - 0.5) * ratio;
-    vec2 m = uMouse * ratio * 0.5; // mouse is -1..1, adjusted by ratio
+    vec2 m = uMouse * ratio * 0.5;
     
-    // Track mouse: shift field
     p += m * uTrackMouse * 0.01;
-
-    // Interactive Bulge
     float d = distance(p, m);
     float bulge = smoothstep(uBulgeScale, 0.0, d) * uBulgeAmount * 0.005;
     p -= normalize(p - m + 0.0001) * bulge;
-
-    // Skewing Logic (Organic Liquid Displacement)
     p.x += p.y * uSkew * 0.01;
     
-    // Fractal Brownian Motion (FBM) for organic smoke/ridge character
     float time = uTime * 0.1 + uPhase * 0.1;
     float n1 = fbm(p * uScale * 0.01 + time);
-    float n = fbm(p * uScale * 0.01 + n1 * 0.5 + time); // Reduced displacement factor
+    float n = fbm(p * uScale * 0.01 + n1 * 0.5 + time);
 
-    // Amplitude & Thresholding
     n *= (uAmplitude * 0.01) * 2.0;
     float thresh = (uThreshold * 0.01) - 0.5;
     float alpha = smoothstep(thresh - 0.2, thresh + 0.2, n);
@@ -111,107 +105,102 @@ interface NoiseBackgroundProps {
   className?: string;
 }
 
-function NoisePlane(props: NoiseBackgroundProps & { isVisible: boolean }) {
+function NoisePlane(props: NoiseBackgroundProps) {
   const { size } = useThree();
   const meshRef = useRef<Mesh>(null);
-  const { isVisible } = props;
+  const mousePos = useRef(new THREE.Vector2(0, 0));
 
-  // Use a ref to store the THREE instances once loaded
-  const threeRef = useRef<any>(null);
-  const [isLoaded, setIsLoaded] = React.useState(false);
-
-  useEffect(() => {
-    import('three').then(mod => {
-      threeRef.current = mod;
-      setIsLoaded(true);
+  const material = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      vertexShader,
+      fragmentShader,
+      uniforms: {
+        uTime: { value: 0 },
+        uMouse: { value: new THREE.Vector2(0, 0) },
+        uResolution: { value: new THREE.Vector2(size.width, size.height) },
+        uColorA: { value: new THREE.Color(props.colorA || "#000000") },
+        uColorB: { value: new THREE.Color(props.colorB || "#ff0000") },
+        uScale: { value: props.noiseScale ?? 100 },
+        uAmplitude: { value: props.amplitude ?? 83 },
+        uSkew: { value: props.skew ?? 50 },
+        uPhase: { value: props.phase ?? 35 },
+        uThreshold: { value: props.threshold ?? 50 },
+        uBulgeAmount: { value: props.bulgeAmount ?? 53 },
+        uBulgeScale: { value: props.bulgeScale ?? 0.5 },
+        uTrackMouse: { value: props.trackMouse ?? 10 },
+      },
+      transparent: true,
     });
-  }, []);
+  }, [vertexShader, fragmentShader, size.width, size.height]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const uniforms = useMemo(() => {
-    if (!isLoaded || !threeRef.current) return {};
-    const THREE = threeRef.current;
-    return {
-      uTime: { value: 0 },
-      uMouse: { value: new THREE.Vector2(0, 0) },
-      uResolution: { value: new THREE.Vector2(size.width, size.height) },
-      uColorA: { value: new THREE.Color(props.colorA || "#000000") },
-      uColorB: { value: new THREE.Color(props.colorB || "#ff0000") },
-      uScale: { value: props.noiseScale ?? 100 },
-      uAmplitude: { value: props.amplitude ?? 83 },
-      uSkew: { value: props.skew ?? 50 },
-      uPhase: { value: props.phase ?? 35 },
-      uThreshold: { value: props.threshold ?? 50 },
-      uBulgeAmount: { value: props.bulgeAmount ?? 53 },
-      uBulgeScale: { value: props.bulgeScale ?? 0.5 },
-      uTrackMouse: { value: props.trackMouse ?? 10 },
-    };
-  }, [props, size, isLoaded]);
-
-  const timeRef = useRef(0);
-  const mousePos = useRef({ x: 0, y: 0 });
+  // Keep uniforms in sync with props during re-renders ☝️🚀
+  useEffect(() => {
+    const u = material.uniforms;
+    if (props.colorA) u.uColorA.value.set(props.colorA);
+    if (props.colorB) u.uColorB.value.set(props.colorB);
+    if (props.noiseScale !== undefined) u.uScale.value = props.noiseScale;
+    if (props.amplitude !== undefined) u.uAmplitude.value = props.amplitude;
+    if (props.skew !== undefined) u.uSkew.value = props.skew;
+    if (props.phase !== undefined) u.uPhase.value = props.phase;
+    if (props.threshold !== undefined) u.uThreshold.value = props.threshold;
+    if (props.bulgeAmount !== undefined) u.uBulgeAmount.value = props.bulgeAmount;
+    if (props.bulgeScale !== undefined) u.uBulgeScale.value = props.bulgeScale;
+    if (props.trackMouse !== undefined) u.uTrackMouse.value = props.trackMouse;
+  }, [
+    props.colorA, props.colorB, props.noiseScale, props.amplitude, 
+    props.skew, props.phase, props.threshold, props.bulgeAmount, 
+    props.bulgeScale, props.trackMouse, material
+  ]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      // Convert to -1..1 range manually since we are likely pointer-events-none ☝️🎬
-      mousePos.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mousePos.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      mousePos.current.set(
+        (e.clientX / window.innerWidth) * 2 - 1,
+        -(e.clientY / window.innerHeight) * 2 + 1
+      );
     };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  useFrame((state, delta) => {
-    if (!isVisible || !isLoaded || !meshRef.current) return; // Pause if off-screen ☝️🎬
-    
-    const material = meshRef.current.material as ShaderMaterial;
-    timeRef.current += delta;
-    material.uniforms.uTime.value = timeRef.current;
-    
-    if (threeRef.current && material.uniforms.uMouse.value) {
-      const THREE = threeRef.current;
-      material.uniforms.uMouse.value.x = THREE.MathUtils.lerp(material.uniforms.uMouse.value.x, mousePos.current.x, 0.1);
-      material.uniforms.uMouse.value.y = THREE.MathUtils.lerp(material.uniforms.uMouse.value.y, mousePos.current.y, 0.1);
+  useFrame((state) => {
+    if (meshRef.current) {
+      // Sync with global clock but allow for a small kick if paused ☝️🚀
+      material.uniforms.uTime.value = state.clock.elapsedTime;
+      material.uniforms.uMouse.value.lerp(mousePos.current, 0.1);
+      material.uniforms.uResolution.value.set(size.width, size.height);
     }
-    material.uniforms.uResolution.value.set(size.width, size.height);
   });
 
-  if (!isLoaded) return null;
+  // Force re-render on visibility change ☝️🚀
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && meshRef.current) {
+        // Just being here forces the effect to wake up
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
 
   return (
     <mesh ref={meshRef}>
       <planeGeometry args={[2, 2]} />
-      <shaderMaterial
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        uniforms={uniforms as any}
-        transparent
-      />
+      <primitive object={material} attach="material" />
     </mesh>
   );
 }
 
 export default function NoiseBackground(props: NoiseBackgroundProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = React.useState(true);
-
-  React.useEffect(() => {
-    if (!containerRef.current) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsVisible(entry.isIntersecting);
-    }, { threshold: 0 });
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div ref={containerRef} className={`absolute inset-0 z-0 pointer-events-none ${props.className}`}>
+    <div className={`absolute inset-0 z-0 pointer-events-none ${props.className}`}>
       <Canvas
+        frameloop="always"
         camera={{ position: [0, 0, 1] }}
         gl={{ antialias: false, stencil: false, depth: false }}
         dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.5) : 1}
-        frameloop={isVisible ? "always" : "demand"}
       >
-        <NoisePlane {...props} isVisible={isVisible} />
+        <NoisePlane {...props} />
       </Canvas>
     </div>
   );

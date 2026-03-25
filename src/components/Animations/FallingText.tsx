@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from 'react';
+import * as Matter from 'matter-js';
 import './FallingText.css';
 
 interface FallingTextProps {
@@ -30,7 +31,7 @@ const FallingText: React.FC<FallingTextProps> = ({
   const textRef = useRef<HTMLDivElement | null>(null);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const [effectStarted, setEffectStarted] = useState(trigger === 'auto');
+  const [effectStarted, setEffectStarted] = useState(true);
 
   useEffect(() => {
     if (!textRef.current) return;
@@ -45,32 +46,20 @@ const FallingText: React.FC<FallingTextProps> = ({
   }, [text, highlightWords, highlightClass]);
 
   useEffect(() => {
-    if (trigger === 'auto') return;
-    if (trigger === 'scroll' && containerRef.current) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setEffectStarted(true);
-            observer.disconnect();
-          }
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(containerRef.current);
-      return () => observer.disconnect();
-    }
+    // Effect starts immediately now
   }, [trigger]);
 
   useEffect(() => {
     if (!effectStarted) return;
 
-    let engine: any;
-    let render: any;
+    let engine: Matter.Engine;
+    let render: Matter.Render;
     let visibilityObserver: IntersectionObserver | undefined;
     let animId: number | undefined;
 
-    const initPhysics = async () => {
-      const Matter = await import('matter-js');
+    const canvasContainer = canvasContainerRef.current; // Capture ref for safe cleanup ☝️🎬
+
+    const initPhysics = () => {
       const { Engine, Render, World, Bodies, Mouse, MouseConstraint } = Matter;
 
       if (!containerRef.current || !canvasContainerRef.current || !textRef.current) return;
@@ -138,20 +127,12 @@ const FallingText: React.FC<FallingTextProps> = ({
 
       World.add(engine.world, [floor, leftWall, rightWall, ceiling, mc, ...wordBodies.map(wb => wb.body)]);
 
-      let isVisible = true;
-      visibilityObserver = new IntersectionObserver(([entry]) => {
-        isVisible = entry.isIntersecting;
-      }, { threshold: 0 });
-      visibilityObserver.observe(containerRef.current);
-
       const updateLoop = () => {
-        if (isVisible) {
-          wordBodies.forEach(({ body, elem }) => {
-            const { x, y } = body.position;
-            elem.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) rotate(${body.angle}rad)`;
-          });
-          Engine.update(engine, 1000 / 60);
-        }
+        wordBodies.forEach(({ body, elem }) => {
+          const { x, y } = body.position;
+          elem.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) rotate(${body.angle}rad)`;
+        });
+        Engine.update(engine, 1000 / 60);
         animId = requestAnimationFrame(updateLoop);
       };
       animId = requestAnimationFrame(updateLoop);
@@ -163,11 +144,11 @@ const FallingText: React.FC<FallingTextProps> = ({
       if (animId) cancelAnimationFrame(animId);
       if (visibilityObserver) visibilityObserver.disconnect();
       if (render) {
-        if (render.canvas && canvasContainerRef.current) {
-          canvasContainerRef.current.removeChild(render.canvas);
+        if (render.canvas && canvasContainer) {
+          canvasContainer.removeChild(render.canvas);
         }
-        // Instead of relying on global Matter, we just stop the render if possible
-        if (typeof render.stop === 'function') render.stop();
+        // Use static Matter.Render.stop(render)
+        Matter.Render.stop(render);
         // and let GC handle the rest if engine/world are local to this effect
       }
       // If engine was successfully created, clear its world

@@ -83,33 +83,9 @@ const CircularText: React.FC<CircularTextProps> = ({
     }
   };
 
-  const [isVisible, setIsVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsVisible(entry.isIntersecting);
-    }, { threshold: 0 });
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []); // Only on unmount ☝️🚀
-
-  useEffect(() => {
-    if (!isVisible) {
-      controls.stop();
-      return;
-    }
-
     const start = rotation.get();
     const duration = isPlaying ? spinDuration / 2 : spinDuration;
     
@@ -122,7 +98,7 @@ const CircularText: React.FC<CircularTextProps> = ({
         from: start
       }
     });
-  }, [isPlaying, spinDuration, controls, isVisible]);
+  }, [isPlaying, spinDuration, controls, rotation]);
 
   return (
     <motion.div

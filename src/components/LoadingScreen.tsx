@@ -95,7 +95,14 @@ export default function LoadingScreen() {
             }}
           />
           <div className="relative z-10 w-full h-full flex items-center justify-center">
-            <Image src="/otc1.webp" alt="One True Chief" fill priority className="object-contain" />
+            <Image 
+              src="/otc1.webp" 
+              alt="One True Chief" 
+              fill 
+              priority 
+              sizes="(max-width: 768px) 160px, 224px"
+              className="object-contain" 
+            />
           </div>
         </div>
 

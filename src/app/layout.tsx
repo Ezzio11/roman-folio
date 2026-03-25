@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   title: "Roman Reigns — Tribal Chief",
   description: "The official resume of Roman Reigns. Undisputed. Head of the Table.",
   icons: {
-    icon: "/favicon.png",
+    icon: "/favicon.ico",
   },
 };
 
@@ -46,12 +46,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${anton.variable} ${bebasNeue.variable} ${inter.variable} ${barlow.variable} h-full antialiased`}
+      className={`${anton.variable} ${bebasNeue.variable} ${inter.variable} ${barlow.variable} h-full antialiased selection:bg-[--accent] selection:text-white`}
     >
       <head>
         {/* Preload critical LCP assets ☝️🚀 */}
-        <link rel="preload" href="/images/tribal_chief.webp" as="image" />
-        <link rel="preload" href="/images/roman_depth.webp" as="image" />
+        <link rel="preload" href="/images/tribal_chief.webp" as="image" crossOrigin="anonymous" />
+        <link rel="preload" href="/images/roman_depth.webp" as="image" crossOrigin="anonymous" />
       </head>
       <body className="min-h-full flex flex-col">
         <LoadingScreen />

@@ -32,9 +32,9 @@ const experiences = [
 
 export default function Experience() {
   return (
-    <section className="py-32 px-8 max-w-7xl mx-auto relative z-30 overflow-visible">
+    <section className="py-32 px-8 max-w-7xl mx-auto relative z-30">
       {/* Zigzag Asset: Roman on the Left 🩸 — Absolute Freedom / Zero Boundaries ☝️✨ */}
-      <div className="absolute -top-[200px] -bottom-[100px] -left-25 w-[600px] opacity-100 pointer-events-none z-10 overflow-visible">
+      <div className="absolute -top-[200px] -bottom-[100px] -left-25 w-[600px] opacity-100 pointer-events-none z-10">
         <div className="relative w-full h-full transform-gpu scale-75 xl:scale-90 origin-bottom-left">
           {/* Base Roman image — static, dimmed */}
           <Image

@@ -25,7 +25,7 @@ export default function Objective() {
   const isInView = useInView(headlineRef, { once: true, margin: "-100px" });
 
   return (
-    <section ref={sectionRef} className="relative py-48 px-8 bg-black border-b border-white/5 scroll-mt-24" id="objective">
+    <section ref={sectionRef} className="relative py-48 px-8 border-b border-white/5 scroll-mt-24" id="objective">
 
       {/* ☝️📊 THE FAR LEFT DATA STREAM — Tactical positioning (No boxes) */}
       <div className="hidden lg:flex absolute left-5 top-1/2 -translate-y-1/2 flex-col gap-10 z-30">
@@ -47,10 +47,10 @@ export default function Objective() {
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Scroll-triggered headline — Wide Freedom */}
-        <div className="lg:w-[90%] relative z-10">
+        <div className="lg:w-full relative z-30">
           <div ref={headlineRef} className="relative z-10">
             {headlineLines.map((line, i) => (
-              <div key={i} className="overflow-hidden">
+              <div key={i} className="overflow-hidden w-full">
                 <motion.div
                   initial={{ y: "110%", opacity: 0 }}
                   animate={isInView ? { y: 0, opacity: 1 } : {}}

@@ -57,10 +57,11 @@ export default function DominanceDashboard() {
   const bgY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
 
   return (
-    <section
+    <motion.section
       ref={containerRef}
-      className="relative py-48 bg-black border-b border-white/5 overflow-hidden"
+      className="relative py-48 border-b border-white/5 overflow-hidden"
       id="dominance"
+      style={{ position: 'relative' }} // Explicitly set for Framer Motion measurement ☝️🎬
     >
       {/* ☝️ ARCHIVAL BACKGROUND LAYER */}
       <div className="absolute inset-0 z-0 opacity-20 pointer-events-none transition-opacity duration-1000">
@@ -278,6 +279,6 @@ export default function DominanceDashboard() {
 
       {/* ☝️ AMBIENT LIGHTING */}
       <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[--accent]/5 to-transparent pointer-events-none" />
-    </section>
+    </motion.section>
   );
 }

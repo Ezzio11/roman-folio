@@ -1,6 +1,6 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import React, { useMemo, useRef, useState, useEffect } from 'react';
-import type { InstancedMesh } from 'three';
+import React, { useMemo, useRef } from 'react';
+import { InstancedMesh, Object3D } from 'three';
 
 interface AntigravityProps {
   count?: number;
@@ -20,9 +20,7 @@ interface AntigravityProps {
   fieldStrength?: number;
 }
 
-const HALF_PI = Math.PI / 2;
-
-const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
+const AntigravityInner: React.FC<AntigravityProps> = ({
   count = 300,
   magnetRadius = 10,
   ringRadius = 10,
@@ -37,21 +35,11 @@ const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
   depthFactor = 1,
   pulseSpeed = 3,
   particleShape = 'capsule',
-  fieldStrength = 10,
-  isVisible
+  fieldStrength = 10
 }) => {
   const meshRef = useRef<InstancedMesh>(null);
   const { viewport } = useThree();
-  
-  const [THREE, setTHREE] = useState<any>(null);
-  useEffect(() => {
-    import('three').then(setTHREE);
-  }, []);
-
-  const dummy = useMemo(() => {
-    if (!THREE) return null;
-    return new THREE.Object3D();
-  }, [THREE]);
+  const dummy = useMemo(() => new Object3D(), []);
 
   const lastMousePos = useRef({ x: 0, y: 0 });
   const lastMouseMoveTime = useRef(0);
@@ -91,21 +79,10 @@ const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
     return temp;
   }, [count, viewport.width, viewport.height]);
 
-  const lastFrameTime = useRef(0);
-  const frameInterval = 1 / 45; // 45 FPS target ☝️🚀
-
   useFrame((state, delta) => {
-    if (!isVisible || !THREE || !dummy) return; // Pause if off-screen or loading ☝️🎬
-
-    // Throttle to 45fps to save CPU/TBT on all devices ☝️🚀
-    lastFrameTime.current += delta;
-    if (lastFrameTime.current < frameInterval) return;
-    lastFrameTime.current -= frameInterval;
-
     const mesh = meshRef.current;
     if (!mesh) return;
 
-    // Modern Timer Replacement logic 👑🛠️
     timeRef.current += delta;
     const time = timeRef.current;
 
@@ -113,7 +90,6 @@ const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
     const v = state.viewport;
 
     const mouseDist = Math.sqrt(Math.pow(m.x - lastMousePos.current.x, 2) + Math.pow(m.y - lastMousePos.current.y, 2));
-
     if (mouseDist > 0.001) {
       lastMouseMoveTime.current = Date.now();
       lastMousePos.current = { x: m.x, y: m.y };
@@ -121,7 +97,6 @@ const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
 
     let destX = (m.x * v.width) / 2;
     let destY = (m.y * v.height) / 2;
-
     if (autoAnimate && Date.now() - lastMouseMoveTime.current > 2000) {
       destX = Math.sin(time * 0.5) * (v.width / 4);
       destY = Math.cos(time * 0.5 * 2) * (v.height / 4);
@@ -134,28 +109,31 @@ const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
     const targetX = virtualMouse.current.x;
     const targetY = virtualMouse.current.y;
     const globalRotation = time * rotationSpeed;
+    
+    // Pre-calculate magnetRadius squared ☝️🚀
+    const magnetRadiusSq = magnetRadius * magnetRadius;
 
     particles.forEach((particle, i) => {
       const { speed, mx, my, mz, cz, randomRadiusOffset } = particle;
       particle.t += speed / 2;
       const t = particle.t;
-
       const projectionFactor = 1 - cz / 50;
       const projectedTargetX = targetX * projectionFactor;
       const projectedTargetY = targetY * projectionFactor;
-
+      
       const dx = mx - projectedTargetX;
       const dy = my - projectedTargetY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-
+      
+      // Use squared distance for performance ☝️🚀
+      const distSq = dx * dx + dy * dy;
       const targetPos = { x: mx, y: my, z: mz * depthFactor };
 
-      if (dist < magnetRadius) {
+      if (distSq < magnetRadiusSq) {
+
         const angle = Math.atan2(dy, dx) + globalRotation;
         const wave = Math.sin(t * waveSpeed + angle) * (0.5 * waveAmplitude);
         const deviation = randomRadiusOffset * (5 / (fieldStrength + 0.1));
         const currentRingRadius = ringRadius + wave + deviation;
-
         targetPos.x = projectedTargetX + currentRingRadius * Math.cos(angle);
         targetPos.y = projectedTargetY + currentRingRadius * Math.sin(angle);
         targetPos.z = mz * depthFactor + Math.sin(t) * (1 * waveAmplitude * depthFactor);
@@ -169,10 +147,12 @@ const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
       dummy.lookAt(projectedTargetX, projectedTargetY, particle.cz);
       dummy.rotateX(Math.PI / 2);
 
-      const currentDistToMouse = Math.sqrt(
-        Math.pow(particle.cx - projectedTargetX, 2) + Math.pow(particle.cy - projectedTargetY, 2)
-      );
-
+      // Distance check for scaling can also be slightly optimized
+      const dcx = particle.cx - projectedTargetX;
+      const dcy = particle.cy - projectedTargetY;
+      const currentDistToMouseSq = dcx * dcx + dcy * dcy;
+      const currentDistToMouse = Math.sqrt(currentDistToMouseSq);
+      
       const distFromRing = Math.abs(currentDistToMouse - ringRadius);
       let scaleFactor = 1 - distFromRing / 10;
       scaleFactor = Math.max(0, Math.min(1, scaleFactor));
@@ -186,8 +166,6 @@ const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
     mesh.instanceMatrix.needsUpdate = true;
   });
 
-  if (!THREE || !dummy) return null;
-
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
       {particleShape === 'capsule' && <capsuleGeometry args={[0.1, 0.4, 4, 8]} />}
@@ -200,27 +178,20 @@ const AntigravityInner: React.FC<AntigravityProps & { isVisible: boolean }> = ({
 };
 
 export default function Antigravity(props: AntigravityProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(true);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsVisible(entry.isIntersecting);
-    }, { threshold: 0 });
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div ref={containerRef} className="absolute inset-0 z-0">
+    <div className="absolute inset-0 z-0">
       <Canvas 
+        frameloop="always"
         camera={{ position: [0, 0, 50], fov: 35 }}
-        gl={{ antialias: false, stencil: false, depth: false }}
+        gl={{ 
+          antialias: false, 
+          stencil: false, 
+          depth: false,
+          powerPreference: "high-performance"
+        }}
         dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.5) : 1}
-        frameloop={isVisible ? "always" : "demand"}
       >
-        <AntigravityInner {...props} isVisible={isVisible} />
+        <AntigravityInner {...props} />
       </Canvas>
     </div>
   );

@@ -50,7 +50,7 @@ const TextType = ({
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(!startOnVisible);
+  const [isVisible] = useState(!startOnVisible);
   const cursorRef = useRef<HTMLSpanElement>(null);
   const containerRef = useRef<HTMLElement>(null);
 
@@ -67,23 +67,7 @@ const TextType = ({
     return textColors[currentTextIndex % textColors.length];
   };
 
-  useEffect(() => {
-    if (!startOnVisible || !containerRef.current) return;
 
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, [startOnVisible]);
 
   useEffect(() => {
     if (showCursor && cursorRef.current) {
@@ -179,7 +163,8 @@ const TextType = ({
   const shouldHideCursor =
     hideCursorWhileTyping && currentTextIndex < textArray.length && (currentCharIndex < textArray[currentTextIndex].length || isDeleting);
 
-  const ComponentToRender = Component as React.ComponentType<React.PropsWithChildren<any>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ComponentToRender = Component as any;
 
   return (
     <ComponentToRender

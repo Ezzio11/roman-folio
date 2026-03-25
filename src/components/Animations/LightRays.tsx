@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { Renderer, Program, Triangle, Mesh } from 'ogl';
 import './LightRays.css';
 
@@ -105,34 +105,10 @@ const LightRays: React.FC<LightRaysProps> = ({
   const animationIdRef = useRef<number | null>(null);
   const meshRef = useRef<Mesh | null>(null);
   const cleanupFunctionRef = useRef<(() => void) | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const observerRef = useRef<IntersectionObserver | null>(null);
   const rectRef = useRef<DOMRect | null>(null);
-  const lastInputTime = useRef(Date.now());
 
   useEffect(() => {
     if (!containerRef.current) return;
-
-    observerRef.current = new IntersectionObserver(
-      entries => {
-        const entry = entries[0];
-        setIsVisible(entry.isIntersecting);
-      },
-      { threshold: 0.1 }
-    );
-
-    observerRef.current.observe(containerRef.current);
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-        observerRef.current = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isVisible || !containerRef.current) return;
 
     if (cleanupFunctionRef.current) {
       cleanupFunctionRef.current();
@@ -287,12 +263,6 @@ void main() {
 
       const loop = (t: number) => {
         if (!rendererRef.current || !uniformsRef.current || !meshRef.current) return;
-        
-        // Idle Timeout ☝️💤
-        if (Date.now() - lastInputTime.current > 10000) {
-          animationIdRef.current = requestAnimationFrame(loop);
-          return;
-        }
 
         uniformsRef.current.iTime.value = t * 0.001;
 
@@ -347,7 +317,7 @@ void main() {
       }
     };
   }, [
-    isVisible, raysOrigin, raysColor, raysSpeed, lightSpread, rayLength, 
+    raysOrigin, raysColor, raysSpeed, lightSpread, rayLength, 
     pulsating, fadeDistance, saturation, followMouse, mouseInfluence, 
     noiseAmount, distortion
   ]);
@@ -378,8 +348,7 @@ void main() {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isVisible || !containerRef.current) return;
-      lastInputTime.current = Date.now();
+      if (!containerRef.current) return;
       const rect = rectRef.current || containerRef.current.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
       const y = (e.clientY - rect.top) / rect.height;
@@ -390,7 +359,7 @@ void main() {
       window.addEventListener('mousemove', handleMouseMove, { passive: true });
       return () => window.removeEventListener('mousemove', handleMouseMove);
     }
-  }, [followMouse, isVisible]);
+  }, [followMouse]);
 
   return <div ref={containerRef} className={`light-rays-container ${className}`.trim()} />;
 };
