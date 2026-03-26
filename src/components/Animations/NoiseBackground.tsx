@@ -22,6 +22,7 @@ const fragmentShader = `
   uniform vec2 uResolution;
   uniform vec3 uColorA;
   uniform vec3 uColorB;
+  uniform vec3 uColorC;
   uniform float uScale;
   uniform float uAmplitude;
   uniform float uSkew;
@@ -86,7 +87,12 @@ const fragmentShader = `
     float thresh = (uThreshold * 0.01) - 0.5;
     float alpha = smoothstep(thresh - 0.2, thresh + 0.2, n);
     
-    vec3 color = mix(uColorA, uColorB, alpha);
+    // Slow oscillate between Bloodline Red and Tribal Blue ☝️🎬
+    // tribalBlue = vec3(0.05, 0.2, 0.8) from HeroCanvas
+    float shift = sin(uTime * 0.3) * 0.5 + 0.5; 
+    vec3 dynamicColorB = mix(uColorB, uColorC, shift);
+    
+    vec3 color = mix(uColorA, dynamicColorB, alpha);
     gl_FragColor = vec4(color, 1.0);
   }
 `;
@@ -94,6 +100,7 @@ const fragmentShader = `
 interface NoiseBackgroundProps {
   colorA?: string;
   colorB?: string;
+  colorC?: string;
   noiseScale?: number;
   amplitude?: number;
   skew?: number;
@@ -119,7 +126,8 @@ function NoisePlane(props: NoiseBackgroundProps) {
         uMouse: { value: new THREE.Vector2(0, 0) },
         uResolution: { value: new THREE.Vector2(size.width, size.height) },
         uColorA: { value: new THREE.Color(props.colorA || "#000000") },
-        uColorB: { value: new THREE.Color(props.colorB || "#ff0000") },
+        uColorB: { value: new THREE.Color(props.colorB || "#cc0000") },
+        uColorC: { value: new THREE.Color(props.colorC || "#0533cc") },
         uScale: { value: props.noiseScale ?? 100 },
         uAmplitude: { value: props.amplitude ?? 83 },
         uSkew: { value: props.skew ?? 50 },
@@ -138,6 +146,7 @@ function NoisePlane(props: NoiseBackgroundProps) {
     const u = material.uniforms;
     if (props.colorA) u.uColorA.value.set(props.colorA);
     if (props.colorB) u.uColorB.value.set(props.colorB);
+    if (props.colorC) u.uColorC.value.set(props.colorC);
     if (props.noiseScale !== undefined) u.uScale.value = props.noiseScale;
     if (props.amplitude !== undefined) u.uAmplitude.value = props.amplitude;
     if (props.skew !== undefined) u.uSkew.value = props.skew;
@@ -147,7 +156,7 @@ function NoisePlane(props: NoiseBackgroundProps) {
     if (props.bulgeScale !== undefined) u.uBulgeScale.value = props.bulgeScale;
     if (props.trackMouse !== undefined) u.uTrackMouse.value = props.trackMouse;
   }, [
-    props.colorA, props.colorB, props.noiseScale, props.amplitude, 
+    props.colorA, props.colorB, props.colorC, props.noiseScale, props.amplitude, 
     props.skew, props.phase, props.threshold, props.bulgeAmount, 
     props.bulgeScale, props.trackMouse, material
   ]);

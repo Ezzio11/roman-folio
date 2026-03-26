@@ -105,7 +105,8 @@ export default function Hero() {
           }}>
             <NoiseBackground
               colorA="#000000"
-              colorB="#ff0000"
+              colorB="#cc0000"
+              colorC="#0d33cc"
               noiseScale={100}
               amplitude={83}
               skew={50}
